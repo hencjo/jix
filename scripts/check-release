@@ -4,6 +4,8 @@ cd "$(dirname "$0")/.."
 # The package check includes the pinned Maven differential gate.
 nix flake check --no-update-lock-file --print-build-logs
 nix develop --no-update-lock-file --command bash -euo pipefail -c '
+  python3 -B scripts/check-secrets
+  python3 -B tools/test_secrets.py
   cargo fmt --all --check
   cargo clippy --workspace --all-targets --locked -- -D warnings
   python3 -B tools/test_release.py

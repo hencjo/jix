@@ -1,0 +1,4 @@
+title = "Jix secret scanning"
+
+[extend]
+useDefault = true

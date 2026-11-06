@@ -67,6 +67,7 @@
               pkgs.jdk21
               pkgs.curl
               pkgs.git
+              pkgs.gitleaks
               pkgs.cargo-release
               pkgs.gh
               pkgs.bash

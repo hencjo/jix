@@ -3,6 +3,7 @@
 {
   packages = [
     pkgs.git
+    pkgs.gitleaks
     pkgs.cargo-release
     pkgs.gh
     pkgs.curl
@@ -31,6 +32,12 @@
   };
 
   git-hooks.hooks = {
+    gitleaks = {
+      enable = true;
+      name = "gitleaks";
+      entry = "${pkgs.gitleaks}/bin/gitleaks git --staged --redact=100 --no-banner --config .gitleaks.toml";
+      pass_filenames = false;
+    };
     rustfmt.enable = true;
     nixfmt.enable = true;
   };

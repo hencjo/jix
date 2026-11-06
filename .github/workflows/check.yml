@@ -7,7 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - uses: cachix/install-nix-action@v31
+      - run: nix develop --command python3 -B scripts/check-secrets
+      - run: nix develop --command python3 -B tools/test_secrets.py
       - run: nix develop --command python3 -B tools/test_release.py
       - run: nix flake check --print-build-logs
       - run: python3 -B tools/test_explicit.py

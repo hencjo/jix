@@ -95,6 +95,15 @@ source needs fixing, make a new release.
 
 ## Publication hygiene
 
+Run `devenv shell python3 -B scripts/check-secrets` before publication. Gitleaks
+is supplied by the locked Nix environments and runs with fully redacted output,
+upstream default rules, and no project allowlist. The check scans all local Git
+refs, staged changes, and tracked plus non-ignored untracked working files.
+Ignored local files, unreachable Git objects, and external symlink targets are
+not scanned. Submodules require a separate audit. A clean result is not proof
+that no secrets exist. The same scan runs in CI and the local release gate;
+entering `devenv shell` installs a staged-change pre-commit check.
+
 Keep credentials outside project trees. `.aws/`, `.codex/`, `.agents/` and `dist/`
 are ignored here to prevent accidental Git additions. Ignore rules do not remove
 files from Git history, prevent `git add -f`, or make directory snapshots safe.
