@@ -11,13 +11,8 @@ Ask your existing coding agent:
 > Read `jix migrate --guide`, inspect this project, and help migrate it to Jix.
 > Keep the existing build until verification passes.
 
-The command prints a self-contained, release-matched Markdown guide offline.
-It does not inspect or modify the project. No Jix source checkout, skill, MCP server,
-model integration, or extra account is needed. The guide covers Maven/Gradle
-assessment, dependency-only adoption, libraries, workspaces, vendored adapters,
+The guide covers Maven/Gradle assessment, dependency-only adoption, libraries, workspaces, vendored adapters,
 JPMS, and evidence-based verification; it does not promise automatic conversion.
-
-Project boundaries: [SPEC.md](SPEC.md).
 
 ## Start a project
 
@@ -27,9 +22,9 @@ With Jix installed:
 jix init                         # dependencies-only project
 # Edit maven.nix
 jix lock                         # resolve and pin Maven dependencies
-jix build dependencies                      # populate the store; no Java compilation
+jix build dependencies           # populate the store; no Java compilation
 jix classpath main               # print the ordered, usable classpath
-jix export --output ./deps   # export portable copies for other tools
+jix export --output ./deps       # export portable copies for other tools
 jix verify                       # check lock freshness offline
 ```
 
