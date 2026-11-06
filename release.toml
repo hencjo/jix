@@ -1,0 +1,8 @@
+publish = false
+shared-version = true
+consolidate-commits = true
+pre-release-commit-message = "chore(release): jix {{version}}"
+tag-prefix = ""
+tag-name = "jix-v{{version}}"
+tag-message = "Jix {{version}}"
+push-remote = "origin"
