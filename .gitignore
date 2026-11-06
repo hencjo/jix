@@ -1,0 +1,22 @@
+# Devenv
+.devenv*
+devenv.local.nix
+devenv.local.yaml
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml
+
+# Build artifacts
+/target/
+
+result
+
+# Local release output and private machine configuration
+/dist/
+/.aws/
+/.codex/
+/.agents/
+__pycache__/
