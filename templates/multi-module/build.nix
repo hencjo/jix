@@ -2,12 +2,13 @@
   pkgs,
   java,
   deps,
+  jdk ? pkgs.jdk21,
 }:
 let
   core = java.library {
     name = "core";
     sources = ./core/src/main/java;
-    jdk = pkgs.jdk21;
+    inherit jdk;
     release = 21;
   };
   runtime = {
@@ -24,7 +25,7 @@ let
       deps.classpaths.main
     ];
     inherit runtime;
-    jdk = pkgs.jdk21;
+    inherit jdk;
     release = 21;
   };
   app = java.application {
@@ -33,7 +34,7 @@ let
       classpath = [ jar ] ++ runtime.classpath;
     };
     mainClass = "example.Main";
-    jdk = pkgs.jdk21;
+    inherit jdk;
   };
 in
 {

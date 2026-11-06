@@ -61,6 +61,7 @@ fn backend_environment(
             "spec" => jix_nix::Operation::Spec,
             "verify" => jix_nix::Operation::VerifySpec,
             "init" => jix_nix::Operation::Init,
+            "init-jdk" => jix_nix::Operation::InitJdk,
             "run" => jix_nix::Operation::Run(name),
             "idea" => jix_nix::Operation::Idea,
             _ => jix_nix::Operation::Build(name),
@@ -111,7 +112,17 @@ pub fn init(project: &Path, source: Option<String>, template: &str) -> Result<()
             .replace("${", "\\${"),
     );
     let flake = project.join("flake.nix");
+    let pending = project.join(".jix/init-context-pending");
     if flake.exists() {
+        if pending.is_file() && fs::read_to_string(&flake)? == snippet {
+            ensure!(
+                fs::read_to_string(&pending)? == template,
+                "Retry init with the original template"
+            );
+            backend(&project, "init", None)?;
+            finish_context(&project, template)?;
+            return Ok(());
+        }
         if !project.join("flake.lock").exists() && fs::read_to_string(&flake)? == snippet {
             backend(&project, "init", None)?;
             eprintln!("Pinned Nix inputs for the existing Jix template.");
@@ -165,6 +176,10 @@ pub fn init(project: &Path, source: Option<String>, template: &str) -> Result<()
             ),
         ]);
     }
+    ensure!(
+        fs::symlink_metadata(project.join("resolution-context.nix")).is_err(),
+        "resolution-context.nix already exists; refusing to overwrite"
+    );
     for (name, _) in &files {
         ensure!(
             fs::symlink_metadata(project.join(name)).is_err(),
@@ -198,7 +213,32 @@ pub fn init(project: &Path, source: Option<String>, template: &str) -> Result<()
             writeln!(file, "{pattern}")?;
         }
     }
-    backend(&project,"init",None).context("Project files created, but pinning Nix inputs failed; inspect flake.nix and create flake.lock before running jix lock")?;
+    fs::create_dir_all(project.join(".jix"))?;
+    fs::write(&pending, template)?;
+    backend(&project,"init",None).context("Project files created, but pinning Nix inputs failed; fix the error and retry init with the same template")?;
+    finish_context(&project, template)?;
     eprintln!("Initialized maven.nix and pinned Nix inputs. Edit dependencies, then run jix lock.");
+    Ok(())
+}
+
+fn finish_context(project: &Path, template: &str) -> Result<()> {
+    let context = project.join("resolution-context.nix");
+    if fs::symlink_metadata(&context).is_err() {
+        let java = if template == "dependencies" {
+            PathBuf::from("java")
+        } else {
+            PathBuf::from(backend(project, "init-jdk", None)?).join("bin/java")
+        };
+        let content = crate::resolution_context::capture(&java).context(
+            "Cannot capture Maven context; fix Java and retry init with the same template",
+        )?;
+        let mut file = tempfile::NamedTempFile::new_in(project)?;
+        file.write_all(content.as_bytes())?;
+        file.persist_noclobber(&context)?;
+        eprintln!(
+            "Captured resolution-context.nix; review and commit it. It is never refreshed automatically."
+        );
+    }
+    fs::remove_file(project.join(".jix/init-context-pending"))?;
     Ok(())
 }

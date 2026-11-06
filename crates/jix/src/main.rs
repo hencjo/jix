@@ -1,6 +1,7 @@
 mod cli;
 mod matrix_cli;
 mod project;
+mod resolution_context;
 use anyhow::{Result, ensure};
 use cli::{OperationMode, parse};
 use jix::{artifacts, build, lock};

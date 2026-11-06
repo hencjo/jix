@@ -8,6 +8,7 @@
         "x86_64-linux"
         "aarch64-linux"
       ];
+      jdks = each (system: (import nixpkgs { inherit system; }).jdk21);
       projects = each (
         system:
         let
@@ -18,6 +19,7 @@
             lockFile = ./jix.lock;
           };
           build = import ./build.nix {
+            jdk = jdks.${system};
             inherit pkgs deps;
             java = jix.lib { inherit pkgs; };
           };
@@ -39,6 +41,7 @@
     in
     {
       jix = each (system: {
+        initJdk = jdks.${system};
         dependencies = projects.${system}.descriptor;
       });
       packages = each (system: projects.${system}.packages);

@@ -3,6 +3,7 @@
   pkgs,
   java,
   deps,
+  jdk ? pkgs.jdk21,
 }:
 let
   runtime = {
@@ -13,7 +14,7 @@ let
     sources = ./src/main/java;
     compile.classpath = [ deps.classpaths.main ];
     inherit runtime;
-    jdk = pkgs.jdk21;
+    inherit jdk;
     release = 21;
     resources = [ { from = ./src/main/resources; } ];
     manifest."Main-Class" = "example.Main";
@@ -34,7 +35,7 @@ let
   app =
     (pkgs.writeShellApplication {
       name = "application";
-      text = "exec ${pkgs.jdk21}/bin/java -jar ${jar} \"$@\"";
+      text = "exec ${jdk}/bin/java -jar ${jar} \"$@\"";
     })
     // {
       inherit (jar) jixApplication;

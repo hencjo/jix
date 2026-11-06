@@ -78,6 +78,13 @@ For an existing flake, init prints a snippet and leaves it untouched; it does no
 merge outputs automatically. Without a flake, dependency-only init creates the
 minimal files but still refuses collisions. Neither initializer is a Maven importer.
 
+New scaffolds import a generated resolution-context.nix. Init captures Java/OS
+properties once from the pinned build JDK for applications, or PATH Java for
+dependency-only projects. Review and commit it, including any local java.home
+path; that path is metadata, never a tool lookup. Subsequent operations do not
+probe the host or refresh the context. Adapt the captured values explicitly to
+the migration's intended Maven session, using named contexts for multiple targets.
+
 The packaged binary defaults to its own immutable Jix source snapshot. For sharing,
 select an accessible, pinned Jix flake input rather than someone else's local store
 path. Use --jix-source with the project's chosen reference; never invent a release

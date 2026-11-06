@@ -3,6 +3,7 @@
   pkgs,
   java,
   deps,
+  jdk ? pkgs.jdk21,
 }:
 let
   runtime = {
@@ -13,7 +14,7 @@ let
     sources = ./src/main/java;
     compile.classpath = [ deps.classpaths.main ];
     inherit runtime;
-    jdk = pkgs.jdk21;
+    inherit jdk;
     release = 21;
     resources = [ { from = ./src/main/resources; } ];
     manifest."Main-Class" = "example.Main";
@@ -24,7 +25,7 @@ let
       classpath = [ jar ] ++ runtime.classpath;
     };
     mainClass = "example.Main";
-    jdk = pkgs.jdk21;
+    inherit jdk;
   };
 in
 {

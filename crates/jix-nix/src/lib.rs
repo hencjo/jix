@@ -27,6 +27,7 @@ unsafe extern "C" {
 #[derive(Clone)]
 pub enum Operation {
     Init,
+    InitJdk,
     Spec,
     VerifySpec,
     Build(Option<String>),
@@ -137,6 +138,21 @@ fn execute(path: PathBuf, operation: Operation, environment: Option<String>) -> 
     let outputs = locked.outputs(&settings, &mut eval)?;
     let system = eval.eval_from_string("builtins.currentSystem", "<jix-system>")?;
     let system = eval.require_string(&system)?;
+    if matches!(operation, Operation::InitJdk) {
+        let mut value = outputs;
+        for key in ["jix", &system, "initJdk"] {
+            value = eval
+                .require_attrs_select(&value, key)
+                .context("Missing initialization JDK output")?;
+        }
+        let drv = eval.require_attrs_select(&value, "drvPath")?;
+        let drv = eval.require_string(&drv)?;
+        let drv = store.parse_store_path(&drv)?;
+        let realized = store.realise(&drv)?;
+        let output = store.real_path(realized.get("out").context("JDK has no out output")?)?;
+        retain(&output, &path.join(".jix/roots/init-jdk"))?;
+        return Ok(output);
+    }
     let mut descriptor = outputs;
     for key in ["jix", &system, "dependencies"] {
         descriptor = eval
@@ -349,7 +365,7 @@ fn execute(path: PathBuf, operation: Operation, environment: Option<String>) -> 
             )?;
             Ok(output)
         }
-        Operation::Init => unreachable!(),
+        Operation::Init | Operation::InitJdk => unreachable!(),
     }
 }
 

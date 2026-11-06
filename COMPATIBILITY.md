@@ -268,3 +268,16 @@ Complete `compile`/`runtime` Java input sets are additive APIs. Each listed libr
 contributes its own JAR only, preserving producer and IDE metadata. Runtime does
 not inherit compile inputs. Legacy dependency-list APIs retain their previous
 closure propagation; mixing old and new forms is rejected.
+
+## Initialization context capture
+
+New projects capture six Java system properties once during init: java.version,
+java.home, os.name, os.arch, os.version and path.separator. Application templates
+probe their pinned build JDK; dependency-only projects probe PATH Java. The result
+is a literal resolution-context.nix imported by Maven declarations. User properties
+start empty. Java option-injection environment variables are removed for the probe.
+This initialization convenience does not change resolver semantics: subsequent
+operations read declared values only, and changing hosts or toolchains does not
+refresh the context. Existing projects and explicit context matrices are unchanged.
+Review captured paths before publication; java.home is metadata, not an executable
+lookup. Different deployment contexts must still be declared explicitly.

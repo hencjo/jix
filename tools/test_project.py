@@ -31,8 +31,30 @@ def main():
         source = base / "source"
         shutil.copytree(ROOT, source, ignore=shutil.ignore_patterns(".aws", ".codex", ".agents", "dist", ".git", ".jix", ".devenv*", ".direnv", "target", "result", "__pycache__"))
         source = pathlib.Path(run("nix", "store", "add-path", source).stdout.strip())
+        fake_bin = base / "fake-bin"
+        fake_bin.mkdir()
+        fake_java = fake_bin / "java"
+        fake_java.write_text("#!/bin/sh\n"
+            "test -z \"$JAVA_TOOL_OPTIONS$JDK_JAVA_OPTIONS$_JAVA_OPTIONS\" || exit 42\n"
+            "cat >&2 <<'PROPERTIES'\n"
+            "    java.version = 19.0.2\n"
+            "    java.home = /test/java-${literal}\n"
+            "    os.name = Linux\n"
+            "    os.arch = amd64\n"
+            "    os.version = 6.6\n"
+            "    path.separator = :\nPROPERTIES\n")
+        fake_java.chmod(0o755)
+        capture_env = dict(os.environ, PATH=f"{fake_bin}:{os.environ['PATH']}",
+                           JAVA_TOOL_OPTIONS="-Djava.version=999")
         project = base / "project"
-        run(binary, "init", "--project", project, "--jix-source", f"path:{source}")
+        run(binary, "init", "--project", project, "--jix-source", f"path:{source}", env=capture_env)
+        context = (project / "resolution-context.nix").read_bytes()
+        assert b'"java.version" = "19.0.2"' in context
+        assert b'\\${literal}' in context
+        fake_java.write_text("#!/bin/sh\nexit 99\n")
+        # Existing init and frozen operations must not probe PATH Java again.
+        run(binary, "init", "--project", project, "--jix-source", f"path:{source}", env=capture_env)
+        assert (project / "resolution-context.nix").read_bytes() == context
         assert (project / "maven.nix").is_file()
         assert not (project / "dependencies.nix").exists()
         assert (project / "flake.lock").is_file()
@@ -45,6 +67,25 @@ def main():
         assert "run jix lock" in failed.stderr, failed.stderr
         run(binary, "lock", "--project", project)
         run(binary, "verify", "--project", project)
+        frozen = (project / "jix.lock").read_bytes()
+        assert b"19.0.2" in frozen
+        run(binary, "lock", "--project", project, env=capture_env)
+        run(binary, "verify", "--project", project, env=capture_env)
+        assert (project / "jix.lock").read_bytes() == frozen
+        assert (project / "resolution-context.nix").read_bytes() == context
+        retry = base / "retry"
+        run(binary, "init", "--project", retry, "--jix-source", f"path:{source}", env=capture_env, success=False)
+        assert not (retry / "resolution-context.nix").exists()
+        original_maven = (retry / "maven.nix").read_bytes()
+        run(binary, "init", "--project", retry, "--jix-source", f"path:{source}")
+        assert (retry / "resolution-context.nix").is_file()
+        assert (retry / "maven.nix").read_bytes() == original_maven
+        collision = base / "collision"
+        collision.mkdir()
+        (collision / "resolution-context.nix").write_text("keep me")
+        run(binary, "init", "--project", collision, "--jix-source", f"path:{source}", success=False)
+        assert (collision / "resolution-context.nix").read_text() == "keep me"
+        assert not (collision / "flake.nix").exists()
         # Explicit legacy imports remain valid and do not change the lock.
         locked = (project / "jix.lock").read_bytes()
         (project / "maven.nix").rename(project / "dependencies.nix")
@@ -110,7 +151,10 @@ def main():
         (project / "target").mkdir()
         (project / "target/ignored").write_text("not a source input")
         app = base / "app"
-        run(binary, "init", "--project", app, "--template", "java", "--jix-source", f"path:{source}")
+        run(binary, "init", "--project", app, "--template", "java", "--jix-source", f"path:{source}", env=capture_env)
+        app_context = (app / "resolution-context.nix").read_text()
+        assert '"java.version" = "21.' in app_context
+        assert '"java.home" = "/nix/store/' in app_context
         run(binary, "lock", "--project", app)
         frozen = (app / "jix.lock").read_bytes()
         build_file = app / "build.nix"

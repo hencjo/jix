@@ -4,6 +4,7 @@ let
   common = [ ];
 in
 {
+  resolutionContext = import ./resolution-context.nix;
   classpaths = {
     main = maven.resolve {
       scope = "compile";

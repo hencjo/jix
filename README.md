@@ -4,6 +4,59 @@
 published Maven metadata; upstream Nix fetches, verifies, caches, and retains the
 locked artifacts. An optional Java build DSL consumes the same classpaths.
 
+## First example: a JAR with a dependency
+
+With Nix and Jix installed on Linux, create an application:
+
+```sh
+mkdir hello-jix && cd hello-jix
+jix init --template fat
+```
+
+This generates `flake.nix`, `build.nix`, and a Java source tree. Keep the generated
+build recipe: it compiles with Java 21 and packages the runtime dependencies into
+an executable JAR. Replace `maven.nix` with:
+
+```nix
+{ maven }:
+let
+  dependencies = [ "org.apache.commons:commons-lang3:3.17.0" ];
+in {
+  resolutionContext = import ./resolution-context.nix;
+  classpaths = {
+    main = maven.resolve { scope = "compile"; inherit dependencies; };
+    runtime = maven.resolve { scope = "runtime"; inherit dependencies; };
+  };
+}
+```
+
+Replace `src/main/java/example/Main.java` with:
+
+```java
+package example;
+
+import org.apache.commons.lang3.StringUtils;
+
+public final class Main {
+    public static void main(String[] args) {
+        System.out.println(StringUtils.capitalize("hello from Jix!"));
+    }
+}
+```
+
+Lock, build, and run:
+
+```sh
+jix lock                 # fetch metadata and pin dependency artifacts
+jix build jar            # print the executable JAR's Nix store path
+jix run                  # Hello from Jix! (uses the pinned JDK)
+```
+
+The JAR includes Commons Lang; it can also run with `java -jar /path/to/the.jar`
+on Java 21 or newer. Commit the generated project, including both `flake.lock`
+and `jix.lock`, plus `resolution-context.nix`, to preserve the toolchain, dependency,
+and Maven profile inputs.
+
 ## Migrate with your coding agent
 
 Ask your existing coding agent:
@@ -130,8 +183,22 @@ compile/runtime/test classpath filter, not a scope applied to every root depende
 
 ### Reproducible Maven profile activation
 
+New projects capture this once during `jix init` into `resolution-context.nix`.
+Application templates use their pinned build JDK; dependency-only projects use
+`java` on PATH (Java must be installed). The generated `maven.nix` imports this
+file. Review and commit it: `java.home` can contain a local user-specific path,
+but remains metadata, never a tool lookup. Only six Java/OS properties are
+captured; user properties are empty and Java option-injection variables are ignored.
+
+Locking, verification and builds never recapture these values. Updating the JDK
+or moving machines does not rewrite the context; edit it explicitly when needed.
+The captured OS describes initialization, not all deployment targets. Use named
+environments for different targets. Existing projects are not changed by init.
+If initialization fails, fix Java/Nix and rerun the same init command to finish
+without overwriting generated files or an existing context.
+
 Published dependencies with environment-activated profiles require a declared
-context, never the machine running Jix:
+context. Existing projects can declare one explicitly:
 
 ```nix
 resolutionContext = {

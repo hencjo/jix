@@ -9,6 +9,9 @@
 - Pure Maven resolution declarations with explicit scope, executed only by locking.
 - Complete Java compile/runtime input sets; scope is not reapplied during consumption.
 - Declared Maven profile contexts, context-isolated models and compact v5 locks.
+- One-time init capture of Java/OS properties into a committed context: pinned build
+  JDK for applications, PATH Java for dependency-only projects; never recaptured
+  by resolution, verification or builds.
 - Named dependency environments, one matrix lock, and frozen variant selection with explicit overrides and project/shell defaults.
 - Two separate pins: flake.lock for tooling, jix.lock for Maven artifacts.
 - Frozen builds: Nix fetchurl realizes hash-verified artifacts without compilation.
@@ -37,7 +40,7 @@
 - A Maven/Gradle lifecycle, plugin, task or build-script implementation.
 - A repackaging of Maven Central into a manually maintained Nix package set.
 - A non-Nix project frontend or an ambient ~/.m2 dependency consumer.
-- Host-detected profile activation, arbitrary filesystem probes or ignored-profile allowlists.
+- Host-detected profile activation during locking/builds, arbitrary filesystem probes or ignored-profile allowlists.
 - Implicit Maven-context inference, cross-compilation setup or foreign execution.
 - An automatic build migration, dependency editor or lock updater during builds.
 - Gradle Shadow compatibility, minimization, arbitrary resource transformers,
