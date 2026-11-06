@@ -1,0 +1,22 @@
+[package]
+name = "jix"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Nix-native Java build tooling"
+
+[dependencies]
+jix-resolver = { path = "../jix-resolver" }
+serde_json = "1"
+serde = { version = "1", features = ["derive"] }
+sha2 = "0.10"
+tempfile = "3"
+
+anyhow = "1"
+rustix = { version = "1", features = ["fs"] }
+zip = { version = "2", default-features = false, features = ["deflate"] }
+jix-nix = { path = "../jix-nix", optional = true }
+
+[features]
+default = ["nix"]
+nix = ["dep:jix-nix"]

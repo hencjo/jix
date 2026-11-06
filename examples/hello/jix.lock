@@ -1,0 +1,148 @@
+{
+  "classpathInputs": {
+    "main": {
+      "contextHash": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "models": [
+        "org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.pom",
+        "org/junit/junit-bom/5.11.4/junit-bom-5.11.4.pom",
+        "org/junit/platform/junit-platform-commons/1.11.4/junit-platform-commons-1.11.4.pom"
+      ],
+      "provenance": [
+        "org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar",
+        "org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.pom",
+        "org/junit/junit-bom/5.11.4/junit-bom-5.11.4.pom",
+        "org/junit/platform/junit-platform-commons/1.11.4/junit-platform-commons-1.11.4.jar",
+        "org/junit/platform/junit-platform-commons/1.11.4/junit-platform-commons-1.11.4.pom"
+      ]
+    },
+    "runtime": {
+      "contextHash": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "models": [
+        "org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.pom",
+        "org/junit/junit-bom/5.11.4/junit-bom-5.11.4.pom",
+        "org/junit/platform/junit-platform-commons/1.11.4/junit-platform-commons-1.11.4.pom"
+      ],
+      "provenance": [
+        "org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar",
+        "org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.pom",
+        "org/junit/junit-bom/5.11.4/junit-bom-5.11.4.pom",
+        "org/junit/platform/junit-platform-commons/1.11.4/junit-platform-commons-1.11.4.jar",
+        "org/junit/platform/junit-platform-commons/1.11.4/junit-platform-commons-1.11.4.pom"
+      ]
+    }
+  },
+  "contextModels": {
+    "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b": {
+      "org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.pom": {},
+      "org/junit/junit-bom/5.11.4/junit-bom-5.11.4.pom": {
+        "management": [
+          {"module":"org.junit.jupiter:junit-jupiter:5.11.4"},
+          {"module":"org.junit.jupiter:junit-jupiter-api:5.11.4"},
+          {"module":"org.junit.jupiter:junit-jupiter-engine:5.11.4"},
+          {"module":"org.junit.jupiter:junit-jupiter-migrationsupport:5.11.4"},
+          {"module":"org.junit.jupiter:junit-jupiter-params:5.11.4"},
+          {"module":"org.junit.platform:junit-platform-commons:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-console:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-engine:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-jfr:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-launcher:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-reporting:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-runner:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-suite:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-suite-api:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-suite-commons:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-suite-engine:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-testkit:1.11.4"},
+          {"module":"org.junit.vintage:junit-vintage-engine:5.11.4"}
+        ]
+      },
+      "org/junit/platform/junit-platform-commons/1.11.4/junit-platform-commons-1.11.4.pom": {
+        "dependencies": [
+          {"module":"org.apiguardian:apiguardian-api:1.1.2","scope":"compile"}
+        ],
+        "management": [
+          {"module":"org.junit.jupiter:junit-jupiter:5.11.4"},
+          {"module":"org.junit.jupiter:junit-jupiter-api:5.11.4"},
+          {"module":"org.junit.jupiter:junit-jupiter-engine:5.11.4"},
+          {"module":"org.junit.jupiter:junit-jupiter-migrationsupport:5.11.4"},
+          {"module":"org.junit.jupiter:junit-jupiter-params:5.11.4"},
+          {"module":"org.junit.platform:junit-platform-commons:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-console:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-engine:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-jfr:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-launcher:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-reporting:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-runner:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-suite:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-suite-api:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-suite-commons:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-suite-engine:1.11.4"},
+          {"module":"org.junit.platform:junit-platform-testkit:1.11.4"},
+          {"module":"org.junit.vintage:junit-vintage-engine:5.11.4"}
+        ]
+      }
+    }
+  },
+  "kind": "single",
+  "provenance": {
+    "org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar": {"repository":0,"sha256":"b509448ac506d607319f182537f0b35d71007582ec741832a1f111e5b5b70b38"},
+    "org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.pom": {"repository":0,"sha256":"32355081d109095c3d5d374d5a43b4f4c1b75d549e983ef50723e2772e5302a0"},
+    "org/junit/junit-bom/5.11.4/junit-bom-5.11.4.pom": {"repository":0,"sha256":"19d4b747b204805325b6334553296f986562277a4ac1cb5e593a5e4c4f5e4115"},
+    "org/junit/platform/junit-platform-commons/1.11.4/junit-platform-commons-1.11.4.jar": {"repository":0,"sha256":"9edd969b0d0670c54105bc91ae79bd1c6f503e12115faba82073b84c86bbc334"},
+    "org/junit/platform/junit-platform-commons/1.11.4/junit-platform-commons-1.11.4.pom": {"repository":0,"sha256":"cd12d2b7c242f165548ed9c9406160dcedb6080925b47cf731e0fdae5fb4bce2"}
+  },
+  "request": {
+    "classpaths": {
+      "main": {
+        "dependencies": [
+          "org.junit.platform:junit-platform-commons:1.11.4"
+        ],
+        "platforms": [],
+        "scope": "compile"
+      },
+      "runtime": {
+        "dependencies": [
+          "org.junit.platform:junit-platform-commons:1.11.4"
+        ],
+        "platforms": [],
+        "scope": "runtime"
+      }
+    },
+    "repositories": [
+      "https://repo.maven.apache.org/maven2"
+    ]
+  },
+  "requestHash": "763148f03fbdbc8da07f75aa550d61b60394214b11d19de26bb0e2aa1b634038",
+  "resolution": {
+    "classpaths": {
+      "main": {
+        "artifacts": [
+          {"id":"org.junit.platform:junit-platform-commons:jar::1.11.4","scope":"compile"},
+          {"id":"org.apiguardian:apiguardian-api:jar::1.1.2","scope":"compile"}
+        ],
+        "dependencies": [
+          {"module":"org.junit.platform:junit-platform-commons:1.11.4","scope":"compile"}
+        ],
+        "edges": [
+          {"from":"root","scope":"compile","to":"org.junit.platform:junit-platform-commons:jar::1.11.4"},
+          {"from":"org.junit.platform:junit-platform-commons:jar::1.11.4","scope":"compile","to":"org.apiguardian:apiguardian-api:jar::1.1.2"}
+        ]
+      },
+      "runtime": {
+        "artifacts": [
+          {"id":"org.junit.platform:junit-platform-commons:jar::1.11.4","scope":"compile"},
+          {"id":"org.apiguardian:apiguardian-api:jar::1.1.2","scope":"compile"}
+        ],
+        "dependencies": [
+          {"module":"org.junit.platform:junit-platform-commons:1.11.4","scope":"compile"}
+        ],
+        "edges": [
+          {"from":"root","scope":"compile","to":"org.junit.platform:junit-platform-commons:jar::1.11.4"},
+          {"from":"org.junit.platform:junit-platform-commons:jar::1.11.4","scope":"compile","to":"org.apiguardian:apiguardian-api:jar::1.1.2"}
+        ]
+      }
+    }
+  },
+  "resolver": "maven-3.9.11/resolver-1.9.24/jix-strict-v2",
+  "version": 5
+}

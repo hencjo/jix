@@ -1,0 +1,15 @@
+[workspace]
+members = ["crates/jix-resolver", "crates/jix", "crates/jix-nix"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "GPL-3.0-or-later"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"
+opt-level = "z"

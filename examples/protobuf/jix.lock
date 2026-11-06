@@ -1,0 +1,79 @@
+{
+  "classpathInputs": {
+    "main": {
+      "contextHash": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "models": [
+        "com/google/protobuf/protobuf-bom/4.33.4/protobuf-bom-4.33.4.pom",
+        "com/google/protobuf/protobuf-java/4.33.4/protobuf-java-4.33.4.pom"
+      ],
+      "provenance": [
+        "com/google/protobuf/protobuf-bom/4.33.4/protobuf-bom-4.33.4.pom",
+        "com/google/protobuf/protobuf-java/4.33.4/protobuf-java-4.33.4.jar",
+        "com/google/protobuf/protobuf-java/4.33.4/protobuf-java-4.33.4.pom",
+        "com/google/protobuf/protobuf-parent/4.33.4/protobuf-parent-4.33.4.pom"
+      ]
+    }
+  },
+  "contextModels": {
+    "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b": {
+      "com/google/protobuf/protobuf-bom/4.33.4/protobuf-bom-4.33.4.pom": {
+        "management": [
+          {"module":"com.google.protobuf:protobuf-java:4.33.4"},
+          {"module":"com.google.protobuf:protobuf-java-util:4.33.4"},
+          {"module":"com.google.protobuf:protobuf-kotlin:4.33.4"}
+        ]
+      },
+      "com/google/protobuf/protobuf-java/4.33.4/protobuf-java-4.33.4.pom": {
+        "management": [
+          {"module":"junit:junit:4.13.2","scope":"test"},
+          {"module":"org.mockito:mockito-core:4.3.1","scope":"test"},
+          {"module":"com.google.guava:guava:32.0.1-android"},
+          {"module":"com.google.guava:guava-testlib:32.0.1-android","scope":"test"},
+          {"module":"com.google.truth:truth:1.1.2","scope":"test"},
+          {"module":"com.google.protobuf:protobuf-java:4.33.4"},
+          {"module":"com.google.protobuf:protobuf-java-util:4.33.4"},
+          {"module":"com.google.protobuf:protobuf-kotlin:4.33.4"}
+        ]
+      }
+    }
+  },
+  "kind": "single",
+  "provenance": {
+    "com/google/protobuf/protobuf-bom/4.33.4/protobuf-bom-4.33.4.pom": {"repository":0,"sha256":"f928f55c25ac38e1ff5231b6afa4b1533129bef4ab5cbe0c768a432d9f998d80"},
+    "com/google/protobuf/protobuf-java/4.33.4/protobuf-java-4.33.4.jar": {"repository":0,"sha256":"3ca892fd6ea8b37d01bb6917dbc0bf2637548b756753f65a28d4f1d4d982347f"},
+    "com/google/protobuf/protobuf-java/4.33.4/protobuf-java-4.33.4.pom": {"repository":0,"sha256":"6328eb9828fce1678d706d47e3936f876061da2ed1bddf5364323c8fdbe0c9fd"},
+    "com/google/protobuf/protobuf-parent/4.33.4/protobuf-parent-4.33.4.pom": {"repository":0,"sha256":"68ed02737e41a61a532217c8589b2533413a03a16029a921e586e44852bf62f4"}
+  },
+  "request": {
+    "classpaths": {
+      "main": {
+        "dependencies": [
+          "com.google.protobuf:protobuf-java:4.33.4"
+        ],
+        "platforms": [],
+        "scope": "compile"
+      }
+    },
+    "repositories": [
+      "https://repo.maven.apache.org/maven2"
+    ]
+  },
+  "requestHash": "c8fe8cee59c3a49fd2dec1008fd9f9f74f61df800039e810d5c5dfcc61bb5aff",
+  "resolution": {
+    "classpaths": {
+      "main": {
+        "artifacts": [
+          {"id":"com.google.protobuf:protobuf-java:jar::4.33.4","scope":"compile"}
+        ],
+        "dependencies": [
+          {"module":"com.google.protobuf:protobuf-java:4.33.4","scope":"compile"}
+        ],
+        "edges": [
+          {"from":"root","scope":"compile","to":"com.google.protobuf:protobuf-java:jar::4.33.4"}
+        ]
+      }
+    }
+  },
+  "resolver": "maven-3.9.11/resolver-1.9.24/jix-strict-v2",
+  "version": 5
+}

@@ -1,0 +1,1000 @@
+{
+  "classpaths": {
+    "compile": {
+      "dependencies": [
+        {
+          "group": "com.google.guava",
+          "artifact": "guava",
+          "version": "33.5.0-jre",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "org.eclipse.jetty",
+          "artifact": "jetty-server",
+          "version": "12.1.12",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "org.eclipse.jetty.ee10",
+          "artifact": "jetty-ee10-servlet",
+          "version": "12.1.12",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "org.glassfish.jersey.containers",
+          "artifact": "jersey-container-servlet-core",
+          "version": "3.1.11",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "org.glassfish.jersey.inject",
+          "artifact": "jersey-hk2",
+          "version": "3.1.11",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "org.apache.kafka",
+          "artifact": "kafka-clients",
+          "version": "4.1.2",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "org.slf4j",
+          "artifact": "slf4j-api",
+          "version": "2.0.17",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "org.slf4j",
+          "artifact": "slf4j-simple",
+          "version": "2.0.17",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "org.yaml",
+          "artifact": "snakeyaml",
+          "version": "2.2",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "com.squareup.okhttp3",
+          "artifact": "okhttp",
+          "version": "3.14.9",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "jakarta.servlet",
+          "artifact": "jakarta.servlet-api",
+          "version": "6.0.0",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "org.mockito",
+          "artifact": "mockito-core",
+          "version": "5.14.2",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        }
+      ],
+      "artifacts": [
+        {
+          "id": "com.google.guava:guava:jar::33.5.0-jre",
+          "scope": "compile"
+        },
+        {
+          "id": "com.google.guava:failureaccess:jar::1.0.3",
+          "scope": "compile"
+        },
+        {
+          "id": "com.google.guava:listenablefuture:jar::9999.0-empty-to-avoid-conflict-with-guava",
+          "scope": "compile"
+        },
+        {
+          "id": "org.jspecify:jspecify:jar::1.0.0",
+          "scope": "compile"
+        },
+        {
+          "id": "com.google.errorprone:error_prone_annotations:jar::2.41.0",
+          "scope": "compile"
+        },
+        {
+          "id": "com.google.j2objc:j2objc-annotations:jar::3.1",
+          "scope": "compile"
+        },
+        {
+          "id": "org.eclipse.jetty:jetty-server:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "id": "org.eclipse.jetty:jetty-http:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "id": "org.eclipse.jetty:jetty-util:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "id": "org.eclipse.jetty:jetty-io:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "id": "org.eclipse.jetty.ee10:jetty-ee10-servlet:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "id": "org.eclipse.jetty:jetty-security:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "id": "org.eclipse.jetty:jetty-session:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "id": "org.glassfish.jersey.containers:jersey-container-servlet-core:jar::3.1.11",
+          "scope": "compile"
+        },
+        {
+          "id": "jakarta.inject:jakarta.inject-api:jar::2.0.1",
+          "scope": "compile"
+        },
+        {
+          "id": "org.glassfish.jersey.core:jersey-common:jar::3.1.11",
+          "scope": "compile"
+        },
+        {
+          "id": "jakarta.annotation:jakarta.annotation-api:jar::2.1.1",
+          "scope": "compile"
+        },
+        {
+          "id": "org.glassfish.hk2:osgi-resource-locator:jar::1.0.3",
+          "scope": "compile"
+        },
+        {
+          "id": "org.glassfish.jersey.core:jersey-server:jar::3.1.11",
+          "scope": "compile"
+        },
+        {
+          "id": "org.glassfish.jersey.core:jersey-client:jar::3.1.11",
+          "scope": "compile"
+        },
+        {
+          "id": "jakarta.validation:jakarta.validation-api:jar::3.0.2",
+          "scope": "compile"
+        },
+        {
+          "id": "jakarta.ws.rs:jakarta.ws.rs-api:jar::3.1.0",
+          "scope": "compile"
+        },
+        {
+          "id": "org.glassfish.jersey.inject:jersey-hk2:jar::3.1.11",
+          "scope": "compile"
+        },
+        {
+          "id": "org.glassfish.hk2:hk2-locator:jar::3.0.6",
+          "scope": "compile"
+        },
+        {
+          "id": "org.glassfish.hk2.external:aopalliance-repackaged:jar::3.0.6",
+          "scope": "compile"
+        },
+        {
+          "id": "org.glassfish.hk2:hk2-api:jar::3.0.6",
+          "scope": "compile"
+        },
+        {
+          "id": "org.glassfish.hk2:hk2-utils:jar::3.0.6",
+          "scope": "compile"
+        },
+        {
+          "id": "org.javassist:javassist:jar::3.30.2-GA",
+          "scope": "compile"
+        },
+        {
+          "id": "org.apache.kafka:kafka-clients:jar::4.1.2",
+          "scope": "compile"
+        },
+        {
+          "id": "org.slf4j:slf4j-api:jar::2.0.17",
+          "scope": "compile"
+        },
+        {
+          "id": "org.slf4j:slf4j-simple:jar::2.0.17",
+          "scope": "compile"
+        },
+        {
+          "id": "org.yaml:snakeyaml:jar::2.2",
+          "scope": "compile"
+        },
+        {
+          "id": "com.squareup.okhttp3:okhttp:jar::3.14.9",
+          "scope": "compile"
+        },
+        {
+          "id": "com.squareup.okio:okio:jar::1.17.2",
+          "scope": "compile"
+        },
+        {
+          "id": "jakarta.servlet:jakarta.servlet-api:jar::6.0.0",
+          "scope": "compile"
+        },
+        {
+          "id": "org.mockito:mockito-core:jar::5.14.2",
+          "scope": "compile"
+        },
+        {
+          "id": "net.bytebuddy:byte-buddy:jar::1.15.4",
+          "scope": "compile"
+        },
+        {
+          "id": "net.bytebuddy:byte-buddy-agent:jar::1.15.4",
+          "scope": "compile"
+        }
+      ],
+      "edges": [
+        {
+          "from": "root",
+          "to": "com.google.guava:guava:jar::33.5.0-jre",
+          "scope": "compile"
+        },
+        {
+          "from": "com.google.guava:guava:jar::33.5.0-jre",
+          "to": "com.google.guava:failureaccess:jar::1.0.3",
+          "scope": "compile"
+        },
+        {
+          "from": "com.google.guava:guava:jar::33.5.0-jre",
+          "to": "com.google.guava:listenablefuture:jar::9999.0-empty-to-avoid-conflict-with-guava",
+          "scope": "compile"
+        },
+        {
+          "from": "com.google.guava:guava:jar::33.5.0-jre",
+          "to": "org.jspecify:jspecify:jar::1.0.0",
+          "scope": "compile"
+        },
+        {
+          "from": "com.google.guava:guava:jar::33.5.0-jre",
+          "to": "com.google.errorprone:error_prone_annotations:jar::2.41.0",
+          "scope": "compile"
+        },
+        {
+          "from": "com.google.guava:guava:jar::33.5.0-jre",
+          "to": "com.google.j2objc:j2objc-annotations:jar::3.1",
+          "scope": "compile"
+        },
+        {
+          "from": "root",
+          "to": "org.eclipse.jetty:jetty-server:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "from": "org.eclipse.jetty:jetty-server:jar::12.1.12",
+          "to": "org.eclipse.jetty:jetty-http:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "from": "org.eclipse.jetty:jetty-http:jar::12.1.12",
+          "to": "org.eclipse.jetty:jetty-util:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "from": "org.eclipse.jetty:jetty-server:jar::12.1.12",
+          "to": "org.eclipse.jetty:jetty-io:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "from": "root",
+          "to": "org.eclipse.jetty.ee10:jetty-ee10-servlet:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "from": "org.eclipse.jetty.ee10:jetty-ee10-servlet:jar::12.1.12",
+          "to": "org.eclipse.jetty:jetty-security:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "from": "org.eclipse.jetty.ee10:jetty-ee10-servlet:jar::12.1.12",
+          "to": "org.eclipse.jetty:jetty-session:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "from": "root",
+          "to": "org.glassfish.jersey.containers:jersey-container-servlet-core:jar::3.1.11",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.jersey.containers:jersey-container-servlet-core:jar::3.1.11",
+          "to": "jakarta.inject:jakarta.inject-api:jar::2.0.1",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.jersey.containers:jersey-container-servlet-core:jar::3.1.11",
+          "to": "org.glassfish.jersey.core:jersey-common:jar::3.1.11",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.jersey.core:jersey-common:jar::3.1.11",
+          "to": "jakarta.annotation:jakarta.annotation-api:jar::2.1.1",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.jersey.core:jersey-common:jar::3.1.11",
+          "to": "org.glassfish.hk2:osgi-resource-locator:jar::1.0.3",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.jersey.containers:jersey-container-servlet-core:jar::3.1.11",
+          "to": "org.glassfish.jersey.core:jersey-server:jar::3.1.11",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.jersey.core:jersey-server:jar::3.1.11",
+          "to": "org.glassfish.jersey.core:jersey-client:jar::3.1.11",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.jersey.core:jersey-server:jar::3.1.11",
+          "to": "jakarta.validation:jakarta.validation-api:jar::3.0.2",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.jersey.containers:jersey-container-servlet-core:jar::3.1.11",
+          "to": "jakarta.ws.rs:jakarta.ws.rs-api:jar::3.1.0",
+          "scope": "compile"
+        },
+        {
+          "from": "root",
+          "to": "org.glassfish.jersey.inject:jersey-hk2:jar::3.1.11",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.jersey.inject:jersey-hk2:jar::3.1.11",
+          "to": "org.glassfish.hk2:hk2-locator:jar::3.0.6",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.hk2:hk2-locator:jar::3.0.6",
+          "to": "org.glassfish.hk2.external:aopalliance-repackaged:jar::3.0.6",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.hk2:hk2-locator:jar::3.0.6",
+          "to": "org.glassfish.hk2:hk2-api:jar::3.0.6",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.hk2:hk2-locator:jar::3.0.6",
+          "to": "org.glassfish.hk2:hk2-utils:jar::3.0.6",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.jersey.inject:jersey-hk2:jar::3.1.11",
+          "to": "org.javassist:javassist:jar::3.30.2-GA",
+          "scope": "compile"
+        },
+        {
+          "from": "root",
+          "to": "org.apache.kafka:kafka-clients:jar::4.1.2",
+          "scope": "compile"
+        },
+        {
+          "from": "org.apache.kafka:kafka-clients:jar::4.1.2",
+          "to": "com.github.luben:zstd-jni:jar::1.5.6-10",
+          "scope": "runtime"
+        },
+        {
+          "from": "org.apache.kafka:kafka-clients:jar::4.1.2",
+          "to": "at.yawk.lz4:lz4-java:jar::1.10.1",
+          "scope": "runtime"
+        },
+        {
+          "from": "org.apache.kafka:kafka-clients:jar::4.1.2",
+          "to": "org.xerial.snappy:snappy-java:jar::1.1.10.7",
+          "scope": "runtime"
+        },
+        {
+          "from": "root",
+          "to": "org.slf4j:slf4j-api:jar::2.0.17",
+          "scope": "compile"
+        },
+        {
+          "from": "root",
+          "to": "org.slf4j:slf4j-simple:jar::2.0.17",
+          "scope": "compile"
+        },
+        {
+          "from": "root",
+          "to": "org.yaml:snakeyaml:jar::2.2",
+          "scope": "compile"
+        },
+        {
+          "from": "root",
+          "to": "com.squareup.okhttp3:okhttp:jar::3.14.9",
+          "scope": "compile"
+        },
+        {
+          "from": "com.squareup.okhttp3:okhttp:jar::3.14.9",
+          "to": "com.squareup.okio:okio:jar::1.17.2",
+          "scope": "compile"
+        },
+        {
+          "from": "root",
+          "to": "jakarta.servlet:jakarta.servlet-api:jar::6.0.0",
+          "scope": "compile"
+        },
+        {
+          "from": "root",
+          "to": "org.mockito:mockito-core:jar::5.14.2",
+          "scope": "compile"
+        },
+        {
+          "from": "org.mockito:mockito-core:jar::5.14.2",
+          "to": "net.bytebuddy:byte-buddy:jar::1.15.4",
+          "scope": "compile"
+        },
+        {
+          "from": "org.mockito:mockito-core:jar::5.14.2",
+          "to": "net.bytebuddy:byte-buddy-agent:jar::1.15.4",
+          "scope": "compile"
+        },
+        {
+          "from": "org.mockito:mockito-core:jar::5.14.2",
+          "to": "org.objenesis:objenesis:jar::3.3",
+          "scope": "runtime"
+        }
+      ]
+    },
+    "runtime": {
+      "dependencies": [
+        {
+          "group": "com.google.guava",
+          "artifact": "guava",
+          "version": "33.5.0-jre",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "org.eclipse.jetty",
+          "artifact": "jetty-server",
+          "version": "12.1.12",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "org.eclipse.jetty.ee10",
+          "artifact": "jetty-ee10-servlet",
+          "version": "12.1.12",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "org.glassfish.jersey.containers",
+          "artifact": "jersey-container-servlet-core",
+          "version": "3.1.11",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "org.glassfish.jersey.inject",
+          "artifact": "jersey-hk2",
+          "version": "3.1.11",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "org.apache.kafka",
+          "artifact": "kafka-clients",
+          "version": "4.1.2",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "org.slf4j",
+          "artifact": "slf4j-api",
+          "version": "2.0.17",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "org.slf4j",
+          "artifact": "slf4j-simple",
+          "version": "2.0.17",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "org.yaml",
+          "artifact": "snakeyaml",
+          "version": "2.2",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "com.squareup.okhttp3",
+          "artifact": "okhttp",
+          "version": "3.14.9",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "jakarta.servlet",
+          "artifact": "jakarta.servlet-api",
+          "version": "6.0.0",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        },
+        {
+          "group": "org.mockito",
+          "artifact": "mockito-core",
+          "version": "5.14.2",
+          "type": "jar",
+          "classifier": "",
+          "scope": "compile",
+          "optional": false,
+          "exclusions": []
+        }
+      ],
+      "artifacts": [
+        {
+          "id": "com.google.guava:guava:jar::33.5.0-jre",
+          "scope": "compile"
+        },
+        {
+          "id": "com.google.guava:failureaccess:jar::1.0.3",
+          "scope": "compile"
+        },
+        {
+          "id": "com.google.guava:listenablefuture:jar::9999.0-empty-to-avoid-conflict-with-guava",
+          "scope": "compile"
+        },
+        {
+          "id": "org.jspecify:jspecify:jar::1.0.0",
+          "scope": "compile"
+        },
+        {
+          "id": "com.google.errorprone:error_prone_annotations:jar::2.41.0",
+          "scope": "compile"
+        },
+        {
+          "id": "com.google.j2objc:j2objc-annotations:jar::3.1",
+          "scope": "compile"
+        },
+        {
+          "id": "org.eclipse.jetty:jetty-server:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "id": "org.eclipse.jetty:jetty-http:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "id": "org.eclipse.jetty:jetty-util:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "id": "org.eclipse.jetty:jetty-io:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "id": "org.eclipse.jetty.ee10:jetty-ee10-servlet:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "id": "org.eclipse.jetty:jetty-security:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "id": "org.eclipse.jetty:jetty-session:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "id": "org.glassfish.jersey.containers:jersey-container-servlet-core:jar::3.1.11",
+          "scope": "compile"
+        },
+        {
+          "id": "jakarta.inject:jakarta.inject-api:jar::2.0.1",
+          "scope": "compile"
+        },
+        {
+          "id": "org.glassfish.jersey.core:jersey-common:jar::3.1.11",
+          "scope": "compile"
+        },
+        {
+          "id": "jakarta.annotation:jakarta.annotation-api:jar::2.1.1",
+          "scope": "compile"
+        },
+        {
+          "id": "org.glassfish.hk2:osgi-resource-locator:jar::1.0.3",
+          "scope": "compile"
+        },
+        {
+          "id": "org.glassfish.jersey.core:jersey-server:jar::3.1.11",
+          "scope": "compile"
+        },
+        {
+          "id": "org.glassfish.jersey.core:jersey-client:jar::3.1.11",
+          "scope": "compile"
+        },
+        {
+          "id": "jakarta.validation:jakarta.validation-api:jar::3.0.2",
+          "scope": "compile"
+        },
+        {
+          "id": "jakarta.ws.rs:jakarta.ws.rs-api:jar::3.1.0",
+          "scope": "compile"
+        },
+        {
+          "id": "org.glassfish.jersey.inject:jersey-hk2:jar::3.1.11",
+          "scope": "compile"
+        },
+        {
+          "id": "org.glassfish.hk2:hk2-locator:jar::3.0.6",
+          "scope": "compile"
+        },
+        {
+          "id": "org.glassfish.hk2.external:aopalliance-repackaged:jar::3.0.6",
+          "scope": "compile"
+        },
+        {
+          "id": "org.glassfish.hk2:hk2-api:jar::3.0.6",
+          "scope": "compile"
+        },
+        {
+          "id": "org.glassfish.hk2:hk2-utils:jar::3.0.6",
+          "scope": "compile"
+        },
+        {
+          "id": "org.javassist:javassist:jar::3.30.2-GA",
+          "scope": "compile"
+        },
+        {
+          "id": "org.apache.kafka:kafka-clients:jar::4.1.2",
+          "scope": "compile"
+        },
+        {
+          "id": "com.github.luben:zstd-jni:jar::1.5.6-10",
+          "scope": "runtime"
+        },
+        {
+          "id": "at.yawk.lz4:lz4-java:jar::1.10.1",
+          "scope": "runtime"
+        },
+        {
+          "id": "org.xerial.snappy:snappy-java:jar::1.1.10.7",
+          "scope": "runtime"
+        },
+        {
+          "id": "org.slf4j:slf4j-api:jar::2.0.17",
+          "scope": "compile"
+        },
+        {
+          "id": "org.slf4j:slf4j-simple:jar::2.0.17",
+          "scope": "compile"
+        },
+        {
+          "id": "org.yaml:snakeyaml:jar::2.2",
+          "scope": "compile"
+        },
+        {
+          "id": "com.squareup.okhttp3:okhttp:jar::3.14.9",
+          "scope": "compile"
+        },
+        {
+          "id": "com.squareup.okio:okio:jar::1.17.2",
+          "scope": "compile"
+        },
+        {
+          "id": "jakarta.servlet:jakarta.servlet-api:jar::6.0.0",
+          "scope": "compile"
+        },
+        {
+          "id": "org.mockito:mockito-core:jar::5.14.2",
+          "scope": "compile"
+        },
+        {
+          "id": "net.bytebuddy:byte-buddy:jar::1.15.4",
+          "scope": "compile"
+        },
+        {
+          "id": "net.bytebuddy:byte-buddy-agent:jar::1.15.4",
+          "scope": "compile"
+        },
+        {
+          "id": "org.objenesis:objenesis:jar::3.3",
+          "scope": "runtime"
+        }
+      ],
+      "edges": [
+        {
+          "from": "root",
+          "to": "com.google.guava:guava:jar::33.5.0-jre",
+          "scope": "compile"
+        },
+        {
+          "from": "com.google.guava:guava:jar::33.5.0-jre",
+          "to": "com.google.guava:failureaccess:jar::1.0.3",
+          "scope": "compile"
+        },
+        {
+          "from": "com.google.guava:guava:jar::33.5.0-jre",
+          "to": "com.google.guava:listenablefuture:jar::9999.0-empty-to-avoid-conflict-with-guava",
+          "scope": "compile"
+        },
+        {
+          "from": "com.google.guava:guava:jar::33.5.0-jre",
+          "to": "org.jspecify:jspecify:jar::1.0.0",
+          "scope": "compile"
+        },
+        {
+          "from": "com.google.guava:guava:jar::33.5.0-jre",
+          "to": "com.google.errorprone:error_prone_annotations:jar::2.41.0",
+          "scope": "compile"
+        },
+        {
+          "from": "com.google.guava:guava:jar::33.5.0-jre",
+          "to": "com.google.j2objc:j2objc-annotations:jar::3.1",
+          "scope": "compile"
+        },
+        {
+          "from": "root",
+          "to": "org.eclipse.jetty:jetty-server:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "from": "org.eclipse.jetty:jetty-server:jar::12.1.12",
+          "to": "org.eclipse.jetty:jetty-http:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "from": "org.eclipse.jetty:jetty-http:jar::12.1.12",
+          "to": "org.eclipse.jetty:jetty-util:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "from": "org.eclipse.jetty:jetty-server:jar::12.1.12",
+          "to": "org.eclipse.jetty:jetty-io:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "from": "root",
+          "to": "org.eclipse.jetty.ee10:jetty-ee10-servlet:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "from": "org.eclipse.jetty.ee10:jetty-ee10-servlet:jar::12.1.12",
+          "to": "org.eclipse.jetty:jetty-security:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "from": "org.eclipse.jetty.ee10:jetty-ee10-servlet:jar::12.1.12",
+          "to": "org.eclipse.jetty:jetty-session:jar::12.1.12",
+          "scope": "compile"
+        },
+        {
+          "from": "root",
+          "to": "org.glassfish.jersey.containers:jersey-container-servlet-core:jar::3.1.11",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.jersey.containers:jersey-container-servlet-core:jar::3.1.11",
+          "to": "jakarta.inject:jakarta.inject-api:jar::2.0.1",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.jersey.containers:jersey-container-servlet-core:jar::3.1.11",
+          "to": "org.glassfish.jersey.core:jersey-common:jar::3.1.11",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.jersey.core:jersey-common:jar::3.1.11",
+          "to": "jakarta.annotation:jakarta.annotation-api:jar::2.1.1",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.jersey.core:jersey-common:jar::3.1.11",
+          "to": "org.glassfish.hk2:osgi-resource-locator:jar::1.0.3",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.jersey.containers:jersey-container-servlet-core:jar::3.1.11",
+          "to": "org.glassfish.jersey.core:jersey-server:jar::3.1.11",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.jersey.core:jersey-server:jar::3.1.11",
+          "to": "org.glassfish.jersey.core:jersey-client:jar::3.1.11",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.jersey.core:jersey-server:jar::3.1.11",
+          "to": "jakarta.validation:jakarta.validation-api:jar::3.0.2",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.jersey.containers:jersey-container-servlet-core:jar::3.1.11",
+          "to": "jakarta.ws.rs:jakarta.ws.rs-api:jar::3.1.0",
+          "scope": "compile"
+        },
+        {
+          "from": "root",
+          "to": "org.glassfish.jersey.inject:jersey-hk2:jar::3.1.11",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.jersey.inject:jersey-hk2:jar::3.1.11",
+          "to": "org.glassfish.hk2:hk2-locator:jar::3.0.6",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.hk2:hk2-locator:jar::3.0.6",
+          "to": "org.glassfish.hk2.external:aopalliance-repackaged:jar::3.0.6",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.hk2:hk2-locator:jar::3.0.6",
+          "to": "org.glassfish.hk2:hk2-api:jar::3.0.6",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.hk2:hk2-locator:jar::3.0.6",
+          "to": "org.glassfish.hk2:hk2-utils:jar::3.0.6",
+          "scope": "compile"
+        },
+        {
+          "from": "org.glassfish.jersey.inject:jersey-hk2:jar::3.1.11",
+          "to": "org.javassist:javassist:jar::3.30.2-GA",
+          "scope": "compile"
+        },
+        {
+          "from": "root",
+          "to": "org.apache.kafka:kafka-clients:jar::4.1.2",
+          "scope": "compile"
+        },
+        {
+          "from": "org.apache.kafka:kafka-clients:jar::4.1.2",
+          "to": "com.github.luben:zstd-jni:jar::1.5.6-10",
+          "scope": "runtime"
+        },
+        {
+          "from": "org.apache.kafka:kafka-clients:jar::4.1.2",
+          "to": "at.yawk.lz4:lz4-java:jar::1.10.1",
+          "scope": "runtime"
+        },
+        {
+          "from": "org.apache.kafka:kafka-clients:jar::4.1.2",
+          "to": "org.xerial.snappy:snappy-java:jar::1.1.10.7",
+          "scope": "runtime"
+        },
+        {
+          "from": "root",
+          "to": "org.slf4j:slf4j-api:jar::2.0.17",
+          "scope": "compile"
+        },
+        {
+          "from": "root",
+          "to": "org.slf4j:slf4j-simple:jar::2.0.17",
+          "scope": "compile"
+        },
+        {
+          "from": "root",
+          "to": "org.yaml:snakeyaml:jar::2.2",
+          "scope": "compile"
+        },
+        {
+          "from": "root",
+          "to": "com.squareup.okhttp3:okhttp:jar::3.14.9",
+          "scope": "compile"
+        },
+        {
+          "from": "com.squareup.okhttp3:okhttp:jar::3.14.9",
+          "to": "com.squareup.okio:okio:jar::1.17.2",
+          "scope": "compile"
+        },
+        {
+          "from": "root",
+          "to": "jakarta.servlet:jakarta.servlet-api:jar::6.0.0",
+          "scope": "compile"
+        },
+        {
+          "from": "root",
+          "to": "org.mockito:mockito-core:jar::5.14.2",
+          "scope": "compile"
+        },
+        {
+          "from": "org.mockito:mockito-core:jar::5.14.2",
+          "to": "net.bytebuddy:byte-buddy:jar::1.15.4",
+          "scope": "compile"
+        },
+        {
+          "from": "org.mockito:mockito-core:jar::5.14.2",
+          "to": "net.bytebuddy:byte-buddy-agent:jar::1.15.4",
+          "scope": "compile"
+        },
+        {
+          "from": "org.mockito:mockito-core:jar::5.14.2",
+          "to": "org.objenesis:objenesis:jar::3.3",
+          "scope": "runtime"
+        }
+      ]
+    }
+  }
+}

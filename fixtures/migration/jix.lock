@@ -1,0 +1,50 @@
+{
+  "classpathInputs": {
+    "main": {
+      "contextHash": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "models": [],
+      "provenance": []
+    },
+    "runtime": {
+      "contextHash": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "models": [],
+      "provenance": []
+    }
+  },
+  "kind": "single",
+  "provenance": {},
+  "request": {
+    "classpaths": {
+      "main": {
+        "dependencies": [],
+        "platforms": [],
+        "scope": "compile"
+      },
+      "runtime": {
+        "dependencies": [],
+        "platforms": [],
+        "scope": "runtime"
+      }
+    },
+    "repositories": [
+      "https://repo.maven.apache.org/maven2"
+    ]
+  },
+  "requestHash": "0f2215ed3c9159579fc21877ae7f475870fd8adc5153b9a1b06e281f8c243e9b",
+  "resolution": {
+    "classpaths": {
+      "main": {
+        "artifacts": [],
+        "dependencies": [],
+        "edges": []
+      },
+      "runtime": {
+        "artifacts": [],
+        "dependencies": [],
+        "edges": []
+      }
+    }
+  },
+  "resolver": "maven-3.9.11/resolver-1.9.24/jix-strict-v2",
+  "version": 5
+}

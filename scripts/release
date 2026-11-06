@@ -1,0 +1,302 @@
+#!/usr/bin/env python3
+"""Local releases. Preview is read-only; publication requires --execute."""
+import argparse
+import datetime
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import sys
+import tarfile
+import tempfile
+import tomllib
+
+ROOT = Path(__file__).resolve().parents[1]
+CATEGORIES = {"Breaking changes", "Added", "Changed", "Fixed", "Security", "Documentation", "Upgrade notes"}
+SKELETON = "## [Unreleased]\n\n" + "".join(f"### {h}\n\n" for h in (
+    "Breaking changes", "Added", "Changed", "Fixed", "Security", "Documentation", "Upgrade notes"))
+
+
+def run(*args, capture=True, **kwargs):
+    p = subprocess.run([str(a) for a in args], check=True, text=True,
+                       stdout=subprocess.PIPE if capture else None, **kwargs)
+    return p.stdout.strip() if capture else None
+
+
+def git(*args):
+    return run("git", *args)
+
+
+def require(ok, message):
+    if not ok:
+        raise ValueError(message)
+
+
+def version(value):
+    require(re.fullmatch(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)", value),
+            f"Invalid stable version: {value}")
+    return tuple(map(int, value.split(".")))
+
+
+def current():
+    return tomllib.loads(Path("Cargo.toml").read_text())["workspace"]["package"]["version"]
+
+
+def sections(text):
+    # Headings inside fenced examples/comments are not changelog structure.
+    visible, fence, comment = [], None, False
+    for line in text.splitlines(keepends=True):
+        if comment:
+            require("<!--" not in line, "Nested changelog comment")
+            if "-->" in line:
+                require(line.strip() == "-->", "Use standalone comment delimiters")
+                comment = False
+            visible.append("\n")
+            continue
+        if fence:
+            if re.fullmatch(re.escape(fence[0]) + "{" + str(len(fence)) + r",}\s*", line.strip()):
+                fence = None
+            visible.append("\n")
+            continue
+        if "<!--" in line:
+            require(line.strip().startswith("<!--"), "Use standalone comments")
+            if "-->" in line:
+                require(line.strip().endswith("-->") and line.count("<!--") == 1,
+                        "Malformed changelog comment")
+            else:
+                require(line.strip() == "<!--", "Use standalone comment delimiters")
+                comment = True
+            visible.append("\n")
+            continue
+        require("-->" not in line, "Unmatched changelog comment")
+        match = re.match(r"^\s*(`{3,}|~{3,})", line)
+        if match:
+            fence = match[1]
+            visible.append("\n")
+        else:
+            visible.append(line)
+    require(not fence and not comment, "Unclosed changelog fence/comment")
+    return "".join(visible)
+
+
+def release_plan(text, old, explicit=None):
+    clean = sections(text)
+    headers = list(re.finditer(r"^## .*?$", clean, re.M))
+    require(headers and headers[0][0] == "## [Unreleased]", "First section must be ## [Unreleased]")
+    require(sum(h[0] == "## [Unreleased]" for h in headers) == 1, "Duplicate Unreleased")
+    # Use line positions to preserve original text byte-for-byte outside Unreleased.
+    lines = text.splitlines(keepends=True)
+    start_line = clean[:headers[0].start()].count("\n")
+    end_line = clean[:headers[1].start()].count("\n") if len(headers) > 1 else len(lines)
+    visible_body = "".join(clean.splitlines(keepends=True)[start_line + 1:end_line])
+    headings = list(re.finditer(r"^### (.+)$", visible_body, re.M))
+    require(headings and not visible_body[:headings[0].start()].strip(), "Entries need category headings")
+    populated, seen = set(), set()
+    for i, heading in enumerate(headings):
+        name = heading[1]
+        require(name in CATEGORIES and name not in seen, f"Unknown/duplicate category: {name}")
+        seen.add(name)
+        end = headings[i + 1].start() if i + 1 < len(headings) else len(visible_body)
+        if visible_body[heading.end():end].strip():
+            populated.add(name)
+    major, minor, patch = version(old)
+    if "Breaking changes" in populated:
+        inferred = (major + 1, 0, 0) if major else (0, minor + 1, 0)
+    elif populated & {"Added", "Changed"}:
+        inferred = (major, minor + 1, 0)
+    else:
+        require(populated & {"Fixed", "Security", "Documentation"}, "No release-worthy changelog entries")
+        inferred = (major, minor, patch + 1)
+    target = explicit or ".".join(map(str, inferred))
+    require(version(target) >= inferred, "Explicit version is below the inferred version")
+    require(not re.search(r"^## \[" + re.escape(target) + r"\]", clean, re.M), "Version already in changelog")
+    date = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+    notes = "".join(lines[start_line + 1:end_line]).strip()
+    notes = notes.replace("{{version}}", target).replace("{{date}}", date)
+    updated = ("".join(lines[:start_line]) + SKELETON + f"## [{target}] - {date}\n\n"
+               + notes + "\n\n" + "".join(lines[end_line:]))
+    return target, notes, updated
+
+
+def notes_for(text, target):
+    version(target)
+    clean = sections(text)
+    headers = list(re.finditer(r"^## .*?$", clean, re.M))
+    matches = [i for i, h in enumerate(headers)
+               if re.fullmatch(r"## \[" + re.escape(target) + r"\] - \d{4}-\d{2}-\d{2}", h[0])]
+    require(len(matches) == 1, f"Expected one released notes section for {target}")
+    i = matches[0]
+    start = clean[:headers[i].start()].count("\n") + 1
+    lines = text.splitlines(keepends=True)
+    end = clean[:headers[i + 1].start()].count("\n") if i + 1 < len(headers) else len(lines)
+    return "".join(lines[start:end]).strip()
+
+
+def clean_tree():
+    require(not git("status", "--porcelain", "--untracked-files=all"), "Commit or move all changes/untracked files first")
+
+
+def verify_tag(tag):
+    require(tag.startswith("jix-v"), "Expected jix-vVERSION tag")
+    target = tag.removeprefix("jix-v")
+    version(target)
+    require(git("cat-file", "-t", tag) == "tag", "Release tag must be annotated")
+    require(git("rev-parse", tag + "^{commit}") == git("rev-parse", "HEAD"), "Check out the exact release tag first")
+    require(current() == target, "Tag and Cargo version disagree")
+    notes_for(Path("CHANGELOG.md").read_text(), target)
+    clean_tree()
+    return target
+
+
+def remote_refs(*refs):
+    return dict(line.split()[::-1] for line in git("ls-remote", "origin", *refs).splitlines())
+
+
+def preflight(target):
+    clean_tree()
+    branch = git("symbolic-ref", "--short", "HEAD")
+    default = git("ls-remote", "--symref", "origin", "HEAD")
+    require(f"ref: refs/heads/{branch}\tHEAD" in default.splitlines(), "Release only from origin's default branch")
+    require(git("rev-parse", "--abbrev-ref", "@{upstream}") == f"origin/{branch}", "Branch must track origin")
+    require(remote_refs(f"refs/heads/{branch}").get(f"refs/heads/{branch}") == git("rev-parse", "HEAD"),
+            "Local HEAD and origin branch differ")
+    tag = f"jix-v{target}"
+    require(not git("tag", "--list", tag) and not remote_refs(f"refs/tags/{tag}"), "Release tag already exists")
+    run("gh", "auth", "status", capture=False)
+    return branch
+
+
+def cargo_release(step, branch, *args):
+    run("cargo", "release", step, *args, "--isolated", "--config", "release.toml",
+        "--allow-branch", branch, "--execute", "--no-confirm", capture=False)
+
+
+def build(tag):
+    target = verify_tag(tag)
+    run("bash", "scripts/check-release", capture=False)
+    verify_tag(tag)
+    system = run("nix", "eval", "--impure", "--raw", "--expr", "builtins.currentSystem")
+    require(system in {"x86_64-linux", "aarch64-linux"}, "Unsupported release system")
+    output = run("nix", "build", ".#jix", "--no-update-lock-file", "--no-link", "--print-out-paths")
+    require(run(Path(output) / "bin/jix", "--version") == f"jix {target}", "Built binary has wrong version")
+    dest = Path("dist") / tag / system
+    dest.mkdir(parents=True, exist_ok=True)
+    archive = dest / f"jix-{target}-{system}.tar.gz"
+    with tempfile.TemporaryDirectory(prefix="jix-package-") as tmp:
+        package = Path(tmp) / f"jix-{target}-{system}"
+        package.mkdir()
+        for name in ("README.md", "LICENSE", "COMPATIBILITY.md", "CHANGELOG.md"):
+            shutil.copyfile(name, package / name)
+        with (package / "source.tar.gz").open("wb") as f:
+            subprocess.run(["git", "archive", "--format=tar.gz", tag], stdout=f, check=True)
+        closure = run("nix-store", "--query", "--requisites", output).splitlines()
+        with (package / "closure.nar").open("wb") as f:
+            subprocess.run(["nix-store", "--export", *closure], stdout=f, check=True)
+        (package / "INSTALL.txt").write_text(
+            "Requires Nix on " + system + ". Import with an authorized local Nix administrator:\n"
+            "  nix-store --import < closure.nar\n"
+            "  mkdir -p ~/.local/state/nix/profiles\n"
+            f"  nix-env --profile ~/.local/state/nix/profiles/jix --install {output}\n"
+            "Run ~/.local/state/nix/profiles/jix/bin/jix.\n"
+            "Do not disable signature verification for arbitrary downloads.\n")
+        metadata = {"tag": tag, "commit": git("rev-parse", "HEAD"), "system": system, "storePath": output}
+        (package / "release.json").write_text(json.dumps(metadata, indent=2) + "\n")
+        temporary = archive.with_suffix(".tmp")
+        with tarfile.open(temporary, "w:gz") as f:
+            f.add(package, arcname=package.name)
+        temporary.replace(archive)
+    digest = file_hash(archive)
+    archive.with_name(archive.name + ".sha256").write_text(f"{digest}  {archive.name}\n")
+    verify_tag(tag)
+    print(archive)
+    return archive
+
+
+def file_hash(path):
+    with path.open("rb") as f:
+        return hashlib.file_digest(f, "sha256").hexdigest()
+
+
+def upload(tag, archive):
+    target = verify_tag(tag)
+    refs = remote_refs(f"refs/tags/{tag}", f"refs/tags/{tag}^{{}}")
+    require(refs.get(f"refs/tags/{tag}") == git("rev-parse", tag)
+            and refs.get(f"refs/tags/{tag}^{{}}") == git("rev-parse", "HEAD"), "Remote tag differs or is missing")
+    checksum = archive.with_name(archive.name + ".sha256")
+    require(checksum.read_text() == f"{file_hash(archive)}  {archive.name}\n", "Package checksum mismatch")
+    with tarfile.open(archive) as f:
+        members = [m for m in f.getmembers() if m.name.count("/") == 1 and m.name.endswith("/release.json")]
+        require(len(members) == 1, "Missing package provenance")
+        meta = json.load(f.extractfile(members[0]))
+    require(meta["tag"] == tag and meta["commit"] == git("rev-parse", "HEAD"), "Package belongs to another commit")
+    # Successful listing distinguishes a missing release from an API/auth failure.
+    repo = json.loads(run("gh", "repo", "view", git("remote", "get-url", "origin"), "--json", "nameWithOwner"))["nameWithOwner"]
+    pages = json.loads(run("gh", "api", "--paginate", "--slurp", f"repos/{repo}/releases"))
+    matches = [r for page in pages for r in page if r["tag_name"] == tag]
+    require(not matches or matches[0]["draft"], "Release already published; never overwrite published assets")
+    with tempfile.TemporaryDirectory() as tmp:
+        notes = Path(tmp) / "notes.md"
+        notes.write_text(notes_for(Path("CHANGELOG.md").read_text(), target))
+        if not matches:
+            run("gh", "release", "create", tag, "--repo", repo, "--verify-tag", "--draft",
+                "--title", f"Jix {target}", "--notes-file", notes, capture=False)
+        run("gh", "release", "upload", tag, archive, checksum, "--repo", repo, "--clobber", capture=False)
+        run("gh", "release", "edit", tag, "--repo", repo, "--draft=false", capture=False)
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("version", nargs="?", help="explicit stable version, at least inferred bump")
+    parser.add_argument("--execute", action="store_true")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--notes", metavar="VERSION")
+    group.add_argument("--verify-tag", metavar="TAG")
+    group.add_argument("--build", metavar="TAG", help="rebuild exact checked-out release tag")
+    group.add_argument("--upload", metavar="TAG", help="retry draft upload/publication for exact tag")
+    parser.add_argument("--archive", type=Path, help="archive for --upload")
+    args = parser.parse_args(argv)
+    os.chdir(ROOT)
+    require(not args.version or not any((args.notes, args.verify_tag, args.build, args.upload)), "Version only applies to new releases")
+    require(not args.archive or args.upload, "--archive requires --upload")
+    if args.notes:
+        print(notes_for(Path("CHANGELOG.md").read_text(), args.notes))
+    elif args.verify_tag:
+        print(verify_tag(args.verify_tag))
+    elif args.build or args.upload:
+        tag = args.build or args.upload
+        verify_tag(tag)
+        if args.upload:
+            require(args.archive, "--upload requires --archive")
+        if args.execute:
+            build(tag) if args.build else upload(tag, args.archive.resolve())
+        else:
+            print(f"Would {'build' if args.build else 'upload and publish'} {tag}; pass --execute")
+    else:
+        target, notes, updated = release_plan(Path("CHANGELOG.md").read_text(), current(), args.version)
+        print(f"Jix {current()} -> {target}\n\n{notes}\n\nValidate, package, atomically push, then publish GitHub release.")
+        if not args.execute:
+            print("Preview only. Pass --execute to release.")
+            return
+        branch = preflight(target)
+        cargo_release("version", branch, target, "--workspace")
+        Path("CHANGELOG.md").write_text(updated)
+        cargo_release("hook", branch, "--workspace")
+        cargo_release("commit", branch)
+        cargo_release("tag", branch, "--workspace")
+        tag = f"jix-v{target}"
+        archive = build(tag)
+        # Explicit atomic refspecs: never push unrelated local tags.
+        run("git", "push", "--atomic", "origin", f"HEAD:refs/heads/{branch}", f"refs/tags/{tag}", capture=False)
+        upload(tag, archive)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (ValueError, OSError, subprocess.CalledProcessError, KeyError, tarfile.TarError) as error:
+        print(f"release: {error}\nStopped; no automatic rollback. Inspect git status/tags. "
+              "Retry --build/--upload for an existing tag; never move a published tag.", file=sys.stderr)
+        sys.exit(1)

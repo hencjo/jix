@@ -1,0 +1,19 @@
+[package]
+name = "jix-nix"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Embedded upstream Nix integration for Jix"
+
+[dependencies]
+anyhow = "1"
+serde_json = "1"
+nix-bindings-expr = { git = "https://github.com/nixops4/nix-bindings-rust", rev = "23de26e2eeb9df5cf26edb6cd17e1fec5fded863" }
+nix-bindings-store = { git = "https://github.com/nixops4/nix-bindings-rust", rev = "23de26e2eeb9df5cf26edb6cd17e1fec5fded863" }
+nix-bindings-flake = { git = "https://github.com/nixops4/nix-bindings-rust", rev = "23de26e2eeb9df5cf26edb6cd17e1fec5fded863" }
+nix-bindings-fetchers = { git = "https://github.com/nixops4/nix-bindings-rust", rev = "23de26e2eeb9df5cf26edb6cd17e1fec5fded863" }
+nix-bindings-util = { git = "https://github.com/nixops4/nix-bindings-rust", rev = "23de26e2eeb9df5cf26edb6cd17e1fec5fded863" }
+
+[build-dependencies]
+cc = "1"
+pkg-config = "0.3"
