@@ -82,7 +82,7 @@ def sections(text):
     return "".join(visible)
 
 
-def release_plan(text, old, explicit=None):
+def release_plan(text, old, explicit=None, initial=False):
     clean = sections(text)
     headers = list(re.finditer(r"^## .*?$", clean, re.M))
     require(headers and headers[0][0] == "## [Unreleased]", "First section must be ## [Unreleased]")
@@ -110,8 +110,13 @@ def release_plan(text, old, explicit=None):
     else:
         require(populated & {"Fixed", "Security", "Documentation"}, "No release-worthy changelog entries")
         inferred = (major, minor, patch + 1)
-    target = explicit or ".".join(map(str, inferred))
-    require(version(target) >= inferred, "Explicit version is below the inferred version")
+    if initial:
+        require(len(headers) == 1, "Initial release requires no released changelog sections")
+        require(explicit is None or explicit == old, "Initial release must use the current Cargo version")
+        target = old
+    else:
+        target = explicit or ".".join(map(str, inferred))
+        require(version(target) >= inferred, "Explicit version is below the inferred version")
     require(not re.search(r"^## \[" + re.escape(target) + r"\]", clean, re.M), "Version already in changelog")
     date = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
     notes = "".join(lines[start_line + 1:end_line]).strip()
@@ -155,7 +160,7 @@ def remote_refs(*refs):
     return dict(line.split()[::-1] for line in git("ls-remote", "origin", *refs).splitlines())
 
 
-def preflight(target):
+def preflight(target, initial=False):
     clean_tree()
     branch = git("symbolic-ref", "--short", "HEAD")
     default = git("ls-remote", "--symref", "origin", "HEAD")
@@ -165,6 +170,9 @@ def preflight(target):
             "Local HEAD and origin branch differ")
     tag = f"jix-v{target}"
     require(not git("tag", "--list", tag) and not remote_refs(f"refs/tags/{tag}"), "Release tag already exists")
+    if initial:
+        require(not git("tag", "--list", "jix-v*") and not remote_refs("refs/tags/jix-v*"),
+                "Initial release requires no existing Jix release tags")
     run("gh", "auth", "status", capture=False)
     return branch
 
@@ -185,13 +193,19 @@ def build(tag):
     dest = Path("dist") / tag / system
     dest.mkdir(parents=True, exist_ok=True)
     archive = dest / f"jix-{target}-{system}.tar.gz"
+    source = dest / f"jix-{target}-source.tar.gz"
+    temporary_source = source.with_suffix(".tmp")
+    with temporary_source.open("wb") as f:
+        subprocess.run(["git", "archive", "--format=tar.gz", f"--prefix=jix-{target}/", tag],
+                       stdout=f, check=True)
+    temporary_source.replace(source)
+    write_checksum(source)
     with tempfile.TemporaryDirectory(prefix="jix-package-") as tmp:
         package = Path(tmp) / f"jix-{target}-{system}"
         package.mkdir()
         for name in ("README.md", "LICENSE", "COMPATIBILITY.md", "CHANGELOG.md"):
             shutil.copyfile(name, package / name)
-        with (package / "source.tar.gz").open("wb") as f:
-            subprocess.run(["git", "archive", "--format=tar.gz", tag], stdout=f, check=True)
+        shutil.copyfile(source, package / "source.tar.gz")
         closure = run("nix-store", "--query", "--requisites", output).splitlines()
         with (package / "closure.nar").open("wb") as f:
             subprocess.run(["nix-store", "--export", *closure], stdout=f, check=True)
@@ -202,14 +216,14 @@ def build(tag):
             f"  nix-env --profile ~/.local/state/nix/profiles/jix --install {output}\n"
             "Run ~/.local/state/nix/profiles/jix/bin/jix.\n"
             "Do not disable signature verification for arbitrary downloads.\n")
-        metadata = {"tag": tag, "commit": git("rev-parse", "HEAD"), "system": system, "storePath": output}
+        metadata = {"tag": tag, "commit": git("rev-parse", "HEAD"), "system": system,
+                    "storePath": output, "sourceArchive": source.name, "sourceSha256": file_hash(source)}
         (package / "release.json").write_text(json.dumps(metadata, indent=2) + "\n")
         temporary = archive.with_suffix(".tmp")
         with tarfile.open(temporary, "w:gz") as f:
             f.add(package, arcname=package.name)
         temporary.replace(archive)
-    digest = file_hash(archive)
-    archive.with_name(archive.name + ".sha256").write_text(f"{digest}  {archive.name}\n")
+    write_checksum(archive)
     verify_tag(tag)
     print(archive)
     return archive
@@ -218,6 +232,10 @@ def build(tag):
 def file_hash(path):
     with path.open("rb") as f:
         return hashlib.file_digest(f, "sha256").hexdigest()
+
+
+def write_checksum(path):
+    path.with_name(path.name + ".sha256").write_text(f"{file_hash(path)}  {path.name}\n")
 
 
 def upload(tag, archive):
@@ -232,6 +250,11 @@ def upload(tag, archive):
         require(len(members) == 1, "Missing package provenance")
         meta = json.load(f.extractfile(members[0]))
     require(meta["tag"] == tag and meta["commit"] == git("rev-parse", "HEAD"), "Package belongs to another commit")
+    source = archive.parent / f"jix-{target}-source.tar.gz"
+    source_checksum = source.with_name(source.name + ".sha256")
+    require(meta.get("sourceArchive") == source.name and meta.get("sourceSha256") == file_hash(source),
+            "Source archive does not match package provenance")
+    require(source_checksum.read_text() == f"{file_hash(source)}  {source.name}\n", "Source checksum mismatch")
     # Successful listing distinguishes a missing release from an API/auth failure.
     repo = json.loads(run("gh", "repo", "view", git("remote", "get-url", "origin"), "--json", "nameWithOwner"))["nameWithOwner"]
     pages = json.loads(run("gh", "api", "--paginate", "--slurp", f"repos/{repo}/releases"))
@@ -243,7 +266,8 @@ def upload(tag, archive):
         if not matches:
             run("gh", "release", "create", tag, "--repo", repo, "--verify-tag", "--draft",
                 "--title", f"Jix {target}", "--notes-file", notes, capture=False)
-        run("gh", "release", "upload", tag, archive, checksum, "--repo", repo, "--clobber", capture=False)
+        run("gh", "release", "upload", tag, archive, checksum, source, source_checksum,
+            "--repo", repo, "--clobber", capture=False)
         run("gh", "release", "edit", tag, "--repo", repo, "--draft=false", capture=False)
 
 
@@ -251,6 +275,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("version", nargs="?", help="explicit stable version, at least inferred bump")
     parser.add_argument("--execute", action="store_true")
+    parser.add_argument("--initial", action="store_true", help="first release at the current Cargo version; requires no prior releases")
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--notes", metavar="VERSION")
     group.add_argument("--verify-tag", metavar="TAG")
@@ -261,6 +286,8 @@ def main(argv=None):
     os.chdir(ROOT)
     require(not args.version or not any((args.notes, args.verify_tag, args.build, args.upload)), "Version only applies to new releases")
     require(not args.archive or args.upload, "--archive requires --upload")
+    require(not args.initial or not any((args.notes, args.verify_tag, args.build, args.upload)),
+            "--initial only applies to new releases")
     if args.notes:
         print(notes_for(Path("CHANGELOG.md").read_text(), args.notes))
     elif args.verify_tag:
@@ -275,13 +302,14 @@ def main(argv=None):
         else:
             print(f"Would {'build' if args.build else 'upload and publish'} {tag}; pass --execute")
     else:
-        target, notes, updated = release_plan(Path("CHANGELOG.md").read_text(), current(), args.version)
+        target, notes, updated = release_plan(Path("CHANGELOG.md").read_text(), current(), args.version, args.initial)
         print(f"Jix {current()} -> {target}\n\n{notes}\n\nValidate, package, atomically push, then publish GitHub release.")
         if not args.execute:
             print("Preview only. Pass --execute to release.")
             return
-        branch = preflight(target)
-        cargo_release("version", branch, target, "--workspace")
+        branch = preflight(target, initial=args.initial)
+        if not args.initial:
+            cargo_release("version", branch, target, "--workspace")
         Path("CHANGELOG.md").write_text(updated)
         cargo_release("hook", branch, "--workspace")
         cargo_release("commit", branch)

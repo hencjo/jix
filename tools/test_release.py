@@ -40,6 +40,16 @@ class Changelog(unittest.TestCase):
             self.plan("Added", explicit="0.1.9")
         self.assertEqual(self.plan("Added", explicit="1.0.0")[0], "1.0.0")
 
+    def test_explicit_initial_release(self):
+        target, notes, updated = self.plan("Added", explicit="0.1.0", initial=True)
+        self.assertEqual(target, "0.1.0")
+        self.assertEqual(r.notes_for(updated, target), notes)
+        self.assertEqual(self.plan("Fixed", initial=True)[0], "0.1.0")
+        with self.assertRaises(ValueError):
+            self.plan("Added", explicit="0.2.0", initial=True)
+        with self.assertRaises(ValueError):
+            r.release_plan(updated, "0.1.0", initial=True)
+
     def test_empty_and_malformed(self):
         for body in ("", "### Added\n", "### Upgrade notes\n- Only notes\n",
                      "### Surprise\n- x", "### Fixed\n- x\n### Fixed\n- y",
@@ -114,6 +124,10 @@ class Repository(unittest.TestCase):
             return original(*args, **kwargs)
         with patch.object(r, "run", side_effect=local):
             self.assertEqual(r.preflight("0.2.0"), "trunk")
+            self.assertEqual(r.preflight("0.1.0", initial=True), "trunk")
+            r.git("tag", "jix-v0.0.1")
+            with self.assertRaises(ValueError): r.preflight("0.1.0", initial=True)
+            r.git("tag", "-d", "jix-v0.0.1")
             Path("untracked").touch()
             with self.assertRaises(ValueError): r.preflight("0.2.0")
             Path("untracked").unlink()
@@ -138,7 +152,11 @@ class Repository(unittest.TestCase):
         dest = Path("dist")
         dest.mkdir()
         meta = dest / "release.json"
-        meta.write_text(json.dumps({"tag": "jix-v0.2.0", "commit": r.git("rev-parse", "HEAD")}))
+        source = dest / "jix-0.2.0-source.tar.gz"
+        source.write_bytes(b"fixture source")
+        r.write_checksum(source)
+        meta.write_text(json.dumps({"tag": "jix-v0.2.0", "commit": r.git("rev-parse", "HEAD"),
+                                   "sourceArchive":source.name,"sourceSha256":r.file_hash(source)}))
         archive = dest / "fixture.tar.gz"
         with tarfile.open(archive, "w:gz") as f:
             f.add(meta, arcname="fixture/release.json")
@@ -162,6 +180,9 @@ class Repository(unittest.TestCase):
         with patch.object(r, "run", side_effect=fake):
             r.upload("jix-v0.2.0", archive)
             self.assertEqual([c[2] for c in calls if c[1] == "release"], ["create", "upload", "edit"])
+            assets = next(c for c in calls if c[1:3] == ("release", "upload"))
+            self.assertIn(archive.parent / "jix-0.2.0-source.tar.gz", assets)
+            self.assertIn(archive.parent / "jix-0.2.0-source.tar.gz.sha256", assets)
             existing.append({"tag_name": "jix-v0.2.0", "draft": True})
             calls.clear()
             r.upload("jix-v0.2.0", archive)
@@ -175,6 +196,19 @@ class Repository(unittest.TestCase):
             with self.assertRaises(ValueError): r.upload("jix-v0.2.0", archive)
             archive.write_bytes(b"corrupt")
             with self.assertRaises(ValueError): r.upload("jix-v0.2.0", archive)
+
+    def test_upload_rejects_wrong_source_before_github(self):
+        self.release_tag()
+        archive = self.archive()
+        source = archive.parent / "jix-0.2.0-source.tar.gz"
+        source.write_bytes(b"different source")
+        r.write_checksum(source)
+        original = r.run
+        def local(*args, **kwargs):
+            self.assertNotEqual(args[0], "gh", "Invalid assets must not contact GitHub")
+            return original(*args, **kwargs)
+        with patch.object(r, "run", side_effect=local), self.assertRaisesRegex(ValueError, "Source archive"):
+            r.upload("jix-v0.2.0", archive)
 
     def test_build_package_and_checksum(self):
         for name in ("README.md", "LICENSE", "COMPATIBILITY.md"):
@@ -208,7 +242,17 @@ class Repository(unittest.TestCase):
             self.assertTrue(any(n.endswith("/closure.nar") for n in names))
             self.assertTrue(any(n.endswith("/source.tar.gz") for n in names))
             meta = next(n for n in names if n.endswith("/release.json"))
-            self.assertEqual(json.load(f.extractfile(meta))["commit"], r.git("rev-parse", "HEAD"))
+            metadata = json.load(f.extractfile(meta))
+            self.assertEqual(metadata["commit"], r.git("rev-parse", "HEAD"))
+            source = archive.parent / metadata["sourceArchive"]
+            self.assertEqual(metadata["sourceSha256"], r.file_hash(source))
+            bundled_source = next(n for n in names if n.endswith("/source.tar.gz"))
+            self.assertEqual(f.extractfile(bundled_source).read(), source.read_bytes())
+        with tarfile.open(source) as f:
+            self.assertIn("jix-0.2.0/Cargo.toml", f.getnames())
+            self.assertIn("jix-0.2.0/CHANGELOG.md", f.getnames())
+        self.assertEqual(source.with_name(source.name + ".sha256").read_text(),
+                         f"{r.file_hash(source)}  {source.name}\n")
         self.assertEqual(archive.with_name(archive.name + ".sha256").read_text(),
                          f"{r.file_hash(archive)}  {archive.name}\n")
 
@@ -241,6 +285,21 @@ class Repository(unittest.TestCase):
         r.cargo_release("commit", "trunk")
         r.cargo_release("tag", "trunk", "--workspace")
         self.assertEqual(r.verify_tag("jix-v0.2.0"), "0.2.0")
+
+    @unittest.skipUnless(shutil.which("cargo-release") and shutil.which("cargo"), "requires pinned cargo-release")
+    def test_real_initial_release_keeps_cargo_version(self):
+        r.run("cargo", "generate-lockfile", "--offline")
+        r.git("add", "Cargo.lock")
+        r.git("commit", "-qm", "chore: lock")
+        manifests = {p: p.read_bytes() for p in (Path("Cargo.toml"), Path("Cargo.lock"))}
+        _, _, updated = r.release_plan(Path("CHANGELOG.md").read_text(), "0.1.0", initial=True)
+        Path("CHANGELOG.md").write_text(updated)
+        r.cargo_release("hook", "trunk", "--workspace")
+        r.cargo_release("commit", "trunk")
+        r.cargo_release("tag", "trunk", "--workspace")
+        self.assertEqual(r.verify_tag("jix-v0.1.0"), "0.1.0")
+        for path, original in manifests.items():
+            self.assertEqual(path.read_bytes(), original)
 
 
 if __name__ == "__main__":

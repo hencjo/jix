@@ -3,6 +3,10 @@
 ## [Unreleased]
 
 ### Added
+- Deterministic published Maven dependency resolution, gated against Maven 3.9.11 / Resolver 1.9.24, with explicit contexts and compact v5 locks.
+- Pure Nix dependency declarations, frozen classpaths, standard Nix caching, and optional Java/JPMS build helpers.
+- Thin, fat, relocated and multi-module application templates, native IntelliJ project generation, and portable dependency exports.
+- Explicit first-release support at the current version and separately checksummed source archives.
 - Local, preview-first releases with version inference, validation, Nix closure packages and GitHub uploads.
 - GPL-3.0-or-later licensing.
 - A reusable, flake-independent Nix package recipe with hashed Git dependencies and installed-binary smoke tests.

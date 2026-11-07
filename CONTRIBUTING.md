@@ -24,8 +24,10 @@ Empty headings and HTML comments are placeholders. Unknown/duplicate categories,
 empty releases and malformed comments/fences fail. Optional `{{version}}` and
 `{{date}}` substitutions apply only to the section being released. Stable SemVer
 only; prerelease publication is not implemented. An explicit version must be at
-least the inferred bump. The first release is also a bump from the current Cargo
-version; there is no implicit special case for an untagged repository.
+least the inferred bump. The first release can explicitly keep the current Cargo
+version with `scripts/release --initial 0.1.0`. This requires no released changelog
+sections or existing Jix release tags, locally or on origin. Without `--initial`,
+normal bump rules still apply even in an untagged repository.
 
 ## Release
 
@@ -40,14 +42,16 @@ devenv shell
 scripts/release                  # read-only, offline preview
 scripts/release 0.3.0            # preview an explicit version
 scripts/release --execute       # perform the release
+# First release only, keeping the existing Cargo version:
+scripts/release --initial 0.1.0 --execute
 ```
 
 The script uses isolated `release.toml` configuration and separate cargo-release
 version/hook/commit/tag steps, without crates.io publication or release PRs. It
 creates an annotated `jix-vVERSION` tag, validates and packages that exact clean
 commit, then atomically pushes only the release commit and tag to origin. It
-creates or resumes a GitHub draft, uploads the archive and SHA-256 checksum, and
-publishes only after both uploads succeed. API/auth errors stop the release; they
+creates or resumes a GitHub draft, uploads the CLI and source archives with their
+SHA-256 checksums, and publishes only after all uploads succeed. API/auth errors stop the release; they
 are not treated as a missing GitHub release. No CI job publishes releases.
 
 ### Artifacts
@@ -69,6 +73,11 @@ for arbitrary downloads. The full closure can be large. Review redistribution
 licenses and corresponding-source requirements for bundled third-party software
 before distributing it; Jix's source archive alone is not every dependency's source.
 Checksums detect corruption, not publisher authenticity.
+
+The same directory also contains `jix-VERSION-source.tar.gz` and its `.sha256` for
+downstream packagers, exported from the exact tag under `jix-VERSION/`. The CLI
+archive embeds these same source bytes; its provenance records their hash.
+Keep all four files together when retrying `--upload`.
 
 ### Recovery
 
