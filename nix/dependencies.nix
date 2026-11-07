@@ -104,6 +104,58 @@ let
       };
   hashRequest = request: builtins.hashString "sha256" (builtins.toJSON request);
   stripSlash = s: if lib.hasSuffix "/" s then stripSlash (lib.removeSuffix "/" s) else s;
+  # Keep the locked-source policy aligned with repository::validate_url in Rust.
+  validRepositoryUrl =
+    url:
+    let
+      file = lib.hasPrefix "file://" url;
+      https = lib.hasPrefix "https://" url;
+      http = lib.hasPrefix "http://" url;
+      rest = lib.removePrefix (
+        if file then
+          "file://"
+        else if https then
+          "https://"
+        else
+          "http://"
+      ) url;
+      host = builtins.head (lib.splitString "/" rest);
+    in
+    builtins.isString url
+    # Bytewise comparison avoids locale-dependent regex character classes.
+    && builtins.all (c: c <= builtins.fromJSON ''"\u007f"'') (lib.stringToCharacters url)
+    && !(builtins.any (c: lib.hasInfix c url) [
+      " "
+      "\t"
+      "\n"
+      "\r"
+      (builtins.fromJSON ''"\u000c"'')
+      "?"
+      "#"
+      "%"
+      "\\"
+    ])
+    && !(builtins.any (
+      part:
+      builtins.elem part [
+        "."
+        ".."
+      ]
+    ) (lib.splitString "/" rest))
+    && (
+      if file then
+        lib.hasPrefix "/" rest
+      else
+        (https || http)
+        && builtins.match "[A-Za-z0-9.:-]+" host != null
+        && (
+          https
+          || builtins.elem (builtins.head (lib.splitString ":" host)) [
+            "127.0.0.1"
+            "localhost"
+          ]
+        )
+    );
   component = s: builtins.match "[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*" s != null;
   artifactParts =
     id:
@@ -169,6 +221,20 @@ let
       fail "stale lockfile; run jix lock"
     else if builtins.attrNames lock.resolution.classpaths != builtins.attrNames request.classpaths then
       fail "lock classpaths do not match request"
+    else if
+      builtins.any (
+        cp:
+        let
+          keys = map (a: (artifactParts a.id).key) cp.artifacts;
+        in
+        builtins.length keys != builtins.length (lib.unique keys)
+      ) (builtins.attrValues lock.resolution.classpaths)
+    then
+      fail "duplicate identity in locked classpath"
+    else if
+      !(builtins.all (source: validRepositoryUrl source.repository) (builtins.attrValues lock.provenance))
+    then
+      fail "invalid repository URL in lockfile"
     else if
       !(builtins.all (
         id:
@@ -302,12 +368,7 @@ rec {
               path = toString fetched.${selected.id};
             }
         ) cp.artifacts;
-        keys = map (e: e.key) entries;
-        result =
-          if builtins.length keys != builtins.length (lib.unique keys) then
-            fail "duplicate identity in classpath ${name}"
-          else
-            run "jix-classpath-${name}" entries;
+        result = run "jix-classpath-${name}" entries;
       in
       result
       // {

@@ -11,6 +11,23 @@ Java build DSL.
 - **Keep inputs explicit.** Pin Maven profile contexts as well as toolchains.
 - **Use ordinary Nix.** Flake packages, apps, and binary caches work as usual.
 
+## Install
+
+With Nix installed on Linux (x86-64 or AArch64):
+
+```sh
+nix profile install github:hencjo/jix#jix
+jix --version
+```
+
+Or try it without installing: `nix run github:hencjo/jix -- --help`.
+These commands use the current default branch; append `/jix-vVERSION` to the
+repository URL to select a published release tag instead.
+
+The release workflow also produces prebuilt Nix-closure archives for GitHub,
+with installation instructions inside. These require Nix; they are not standalone
+static binaries.
+
 ## Build your first JAR
 
 You need Nix and Jix on Linux (x86-64 or AArch64).
@@ -94,6 +111,10 @@ against Maven 3.9.11 / Resolver 1.9.24.
 [Declare dependencies →](docs/guide.md#declare-dependencies-once) ·
 [Verify and export →](docs/guide.md#verify-and-export)
 
+Project verification evaluates Nix declarations offline. Explicit lock/JSON
+commands can work without the Nix backend; resolution and locking may still
+access Maven repositories. [Command boundaries →](docs/guide.md#commands-without-the-nix-backend)
+
 ## Two locks. No surprises.
 
 | Input | Pinned in |
@@ -166,6 +187,40 @@ Dependencies are individual hash-checked Nix downloads. Standard binary caches
 work without a separate Jix cache. Other flakes can consume your packages directly.
 
 [Integrate with an existing flake →](docs/guide.md#one-project-native-flake-outputs)
+
+## Use Jix from your flake
+
+For an existing project, add the CLI to its development shell:
+
+```nix
+{
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs.jix.url = "github:hencjo/jix";
+
+  outputs = { nixpkgs, jix, ... }:
+    let
+      system = "x86_64-linux"; # or aarch64-linux
+      pkgs = import nixpkgs { inherit system; };
+    in {
+      devShells.${system}.default = pkgs.mkShell {
+        packages = [ jix.packages.${system}.jix ];
+      };
+      # Example of invoking the CLI in a sandboxed derivation (no network).
+      packages.${system}.migration-guide = pkgs.runCommand "jix-migration-guide" {
+        nativeBuildInputs = [ jix.packages.${system}.jix ];
+      } ''
+        jix migrate --guide > "$out"
+      '';
+    };
+}
+```
+
+Run `nix develop`, then use `jix` normally. A Nix derivation that invokes Jix
+can put the same package in `nativeBuildInputs`. Commit `flake.lock` to pin it.
+Keep Jix's own nixpkgs input: it pins the native Nix libraries together with the
+Rust bindings; do not add `inputs.jix.inputs.nixpkgs.follows = "nixpkgs"`.
+Java artifacts should use the dependency helpers or Java DSL shown above—not
+`jix lock` inside a sandboxed build.
 
 ## Open IntelliJ. Build and debug.
 

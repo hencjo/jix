@@ -10,7 +10,8 @@ nix develop --no-update-lock-file --command bash -euo pipefail -c '
   cargo clippy --workspace --all-targets --locked -- -D warnings
   python3 -B tools/test_release.py
   cargo test -p jix --locked --test lock_codec -- --ignored
-  for suite in explicit generated_sources matrix resolution_context nix project composition templates; do
+  cargo test -p jix --no-default-features --locked --test independence
+  for suite in explicit generated_sources matrix resolution_context nix project composition templates distribution; do
     python3 -B "tools/test_${suite}.py"
   done
 '

@@ -26,6 +26,8 @@ def main():
         package = run("nix", "build", "path:.#jix", "--no-link", "--print-out-paths", cwd=ROOT).stdout.strip()
         binary = str(pathlib.Path(package) / "bin/jix")
     binary = str(pathlib.Path(binary).resolve())
+    # Launcher evaluation must work without an ambient large-stack workaround.
+    os.environ["RUST_MIN_STACK"] = "2097152"
     with tempfile.TemporaryDirectory(prefix="jix-project-tests-") as temp:
         base = pathlib.Path(temp)
         source = base / "source"

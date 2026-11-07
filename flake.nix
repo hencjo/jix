@@ -90,10 +90,10 @@
             inherit pkgs;
             jix = java;
           };
-          jix = pkgs.rustPlatform.buildRustPackage {
-            pname = "jix";
+          jix = pkgs.callPackage ./nix/package.nix {
+            inherit oracle;
             version = manifest.workspace.package.version;
-            JIX_FLAKE_SOURCE = "path:${self.outPath}";
+            jixSource = self.outPath;
             src = pkgs.lib.fileset.toSource {
               root = ./.;
               fileset = pkgs.lib.fileset.unions [
@@ -106,42 +106,6 @@
                 ./templates
               ];
             };
-            cargoLock = {
-              lockFile = ./Cargo.lock;
-              allowBuiltinFetchGit = true;
-            };
-            postPatch = ''
-              patchShebangs tools/oracle/run.sh
-            '';
-            nativeBuildInputs = [
-              pkgs.makeWrapper
-              pkgs.pkg-config
-              pkgs.rustPlatform.bindgenHook
-            ];
-            buildInputs = [
-              pkgs.nix.dev
-              pkgs.boost
-              pkgs.boehmgc
-            ];
-            meta.license = pkgs.lib.licenses.gpl3Plus;
-            postInstall = ''
-              install -Dm644 LICENSE "$out/share/licenses/jix/LICENSE"
-              wrapProgram "$out/bin/jix" --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.curl ]}
-            '';
-            cargoTestFlags = [ "--workspace" ];
-            nativeCheckInputs = [
-              pkgs.jdk21
-              pkgs.bash
-              pkgs.python3
-              pkgs.curl
-            ];
-            JIX_ORACLE_HOME = oracle;
-            postCheck = ''
-              (cd fixtures/published && sha256sum --check SHA256SUMS)
-              python3 -B tools/test_differential.py
-              cargo test --workspace --locked --offline --test differential -- --ignored
-              cargo test -p jix --locked --offline --test matrix matrix_maven_parity -- --ignored
-            '';
           };
         in
         {
@@ -178,6 +142,7 @@
         in
         {
           resolver = self.packages.${system}.jix;
+          package-version = self.packages.${system}.jix.tests.version;
         }
         // (import ./nix/migration-tests.nix {
           inherit pkgs;

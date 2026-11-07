@@ -45,7 +45,13 @@ pub fn project_environment(
     environment: Option<String>,
 ) -> Result<String> {
     let path = path.canonicalize()?;
-    std::thread::spawn(move || execute(path, operation, environment))
+    // Nixpkgs evaluation (notably launchers) outgrows Rust's default 2 MiB.
+    // Set this explicitly rather than requiring a host RUST_MIN_STACK override.
+    std::thread::Builder::new()
+        .name("jix-nix-evaluator".into())
+        .stack_size(64 * 1024 * 1024)
+        .spawn(move || execute(path, operation, environment))
+        .context("Starting Nix evaluator thread")?
         .join()
         .map_err(|_| anyhow::anyhow!("Nix evaluator thread failed"))?
 }

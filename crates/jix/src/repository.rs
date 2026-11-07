@@ -83,6 +83,14 @@ impl Repository {
                 "10",
                 "--max-time",
                 "120",
+                // curl retries timeouts and transient HTTP errors with exponential
+                // backoff, resetting the output file before each attempt. Do not
+                // retry all errors: 404 must still permit repository fallback.
+                "--retry",
+                "3",
+                "--retry-max-time",
+                "300",
+                "--retry-connrefused",
                 "--max-filesize",
                 "268435456",
                 "--write-out",
@@ -186,4 +194,117 @@ pub fn validate_url(url: &str) -> Result<()> {
         return Err(bad());
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::{
+        io::{BufRead, BufReader, Write},
+        net::TcpListener,
+        sync::{
+            Arc,
+            atomic::{AtomicBool, Ordering},
+        },
+        thread,
+        time::Duration,
+    };
+
+    // Exercise the real curl invocation without Internet access or PATH mocks.
+    fn with_server(responses: &[(u16, &str)], check: impl FnOnce(&str)) -> usize {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let url = format!("http://{}", listener.local_addr().unwrap());
+        listener.set_nonblocking(true).unwrap();
+        let responses: Vec<_> = responses.iter().map(|(s, b)| (*s, b.to_string())).collect();
+        let stop = Arc::new(AtomicBool::new(false));
+        let server_stop = stop.clone();
+        let server = thread::spawn(move || {
+            let mut count = 0;
+            while !server_stop.load(Ordering::Relaxed) {
+                let (mut stream, _) = match listener.accept() {
+                    Ok(connection) => connection,
+                    Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {
+                        thread::sleep(Duration::from_millis(5));
+                        continue;
+                    }
+                    Err(e) => panic!("accept: {e}"),
+                };
+                stream
+                    .set_read_timeout(Some(Duration::from_secs(5)))
+                    .unwrap();
+                let mut request = String::new();
+                let mut reader = BufReader::new(&stream);
+                while !request.ends_with("\r\n\r\n") {
+                    assert!(reader.read_line(&mut request).unwrap() > 0);
+                }
+                let (status, body) = responses.get(count).expect("unexpected retry");
+                count += 1;
+                write!(stream,
+                    "HTTP/1.1 {status} Test\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+                    body.len()
+                ).unwrap();
+            }
+            count
+        });
+        check(&url);
+        stop.store(true, Ordering::Relaxed);
+        server.join().unwrap()
+    }
+
+    #[test]
+    fn transient_downloads_retry_and_cache_only_success() {
+        let count = with_server(
+            &[(408, "timeout"), (503, "unavailable"), (200, "artifact")],
+            |url| {
+                let mut repo = Repository::new(&[url.into()]).unwrap();
+                assert_eq!(repo.read("a.jar").unwrap().unwrap(), b"artifact");
+                assert_eq!(repo.sources["a.jar"].sha256, sha256(b"artifact"));
+                assert_eq!(repo.read("a.jar").unwrap().unwrap(), b"artifact");
+            },
+        );
+        assert_eq!(count, 3);
+    }
+
+    #[test]
+    fn retry_exhaustion_is_an_error_and_does_not_poison_cache() {
+        let count = with_server(
+            &[
+                (503, "busy"),
+                (503, "busy"),
+                (503, "busy"),
+                (503, "busy"),
+                (200, "ok"),
+            ],
+            |url| {
+                let mut repo = Repository::new(&[url.into()]).unwrap();
+                assert!(repo.read("a.jar").unwrap_err().to_string().contains("503"));
+                assert!(repo.sources.is_empty());
+                assert_eq!(repo.read("a.jar").unwrap().unwrap(), b"ok");
+            },
+        );
+        assert_eq!(count, 5);
+    }
+
+    #[test]
+    fn missing_artifacts_fall_back_without_retries() {
+        let first_count = with_server(&[(404, "missing")], |first| {
+            let second_count = with_server(&[(200, "found")], |second| {
+                let mut repo = Repository::new(&[first.into(), second.into()]).unwrap();
+                assert_eq!(repo.read("a.jar").unwrap().unwrap(), b"found");
+                assert_eq!(repo.sources["a.jar"].repository, second);
+            });
+            assert_eq!(second_count, 1);
+        });
+        assert_eq!(first_count, 1);
+    }
+
+    #[test]
+    fn permanent_http_errors_do_not_retry_or_fall_back() {
+        let count = with_server(&[(403, "forbidden")], |url| {
+            let mut repo = Repository::new(&[url.into(), "http://127.0.0.1:1".into()]).unwrap();
+            assert!(repo.read("a.jar").unwrap_err().to_string().contains("403"));
+            assert!(repo.sources.is_empty());
+        });
+        assert_eq!(count, 1);
+    }
 }

@@ -71,13 +71,13 @@ fn backend_environment(
     #[cfg(not(feature = "nix"))]
     {
         let _ = (project, operation, name, environment);
-        anyhow::bail!("This offline-only binary has no embedded Nix backend");
+        anyhow::bail!("This binary was built without the Nix backend");
     }
 }
 pub fn init(project: &Path, source: Option<String>, template: &str) -> Result<()> {
     ensure!(
         cfg!(feature = "nix"),
-        "This offline-only binary has no project frontend"
+        "This binary was built without the Nix backend; project initialization requires Nix"
     );
     fs::create_dir_all(project)?;
     let project = project.canonicalize()?;

@@ -93,6 +93,48 @@ commit before contacting release endpoints. Draft assets may be replaced on retr
 already-published releases are refused. Never move a published tag. If the tagged
 source needs fixing, make a new release.
 
+## Downstream packaging / nixpkgs
+
+`nix/package.nix` is the shared `callPackage` recipe, independent of flake
+evaluation. Pass `src`, `version` and the pinned Maven `oracle` derivation from
+`nix/oracle.nix`. The flake supplies a minimal compilation source plus its complete
+source as `jixSource`; downstream packages can use their complete fetched `src`
+for both. The complete source must include `flake.nix`, `flake.lock`, `nix/`,
+`Cargo.lock`, templates and crates: installed `jix init` pins and retains it.
+Do not point initialization at an unpacked compiler checkout or a moving branch.
+
+Git Cargo dependencies have explicit `cargoLock.outputHashes`; do not reintroduce
+`allowBuiltinFetchGit`. Native Nix must match `crates/jix-nix/nix-version`, checked
+both by the recipe and the Rust adapter build. Update the native Nix pin, bindings
+revision/hash and compatibility evidence together. Do not follow an unrelated
+consumer's nixpkgs input just to reduce lockfile entries.
+
+Run `python3 -B tools/test_distribution.py` for a flake-independent downstream
+build with IFD disabled, temporary profile installation, bundled-source init,
+launcher execution and the README's flake input examples. This is also part of
+the release gate. The package itself runs installed-command smoke tests and the
+Maven 3.9.11 / Resolver 1.9.24 differential gate.
+
+For the actual nixpkgs PR, cut a release using `scripts/release` first. Adapt the
+recipe to `pkgs/by-name/ji/jix/package.nix` with `fetchFromGitHub` at `jix-vVERSION`
+and an explicit source hash; carry the lockfile, native-version file and oracle
+recipe with it (adjust relative paths). Add the package maintainer and metadata,
+test on declared platforms, and submit `jix: init at VERSION`. This repository
+does not itself add Jix to nixpkgs. Personally review the contribution and disclose
+substantial AI assistance as required by nixpkgs' contribution policy.
+
+### Prebuilt versus static
+
+GitHub release archives already distribute the prebuilt native Nix closure, so
+recipients need not compile Jix. They are not static executable archives. A full
+static frontend would require separately validating the embedded Nix C++ library
+stack and its runtime helpers, and must still retain the initialization source
+and work with a Nix store. Building only with `--no-default-features` removes the
+project frontend; it is not a substitute for a static release of the full CLI.
+Keep the closure distribution until a full static variant passes the same backend
+acceptance tests; a dynamically linked binary or one built without the Nix backend
+is not a full static frontend.
+
 ## Publication hygiene
 
 Run `devenv shell python3 -B scripts/check-secrets` before publication. Gitleaks

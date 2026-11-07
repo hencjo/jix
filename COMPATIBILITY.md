@@ -98,6 +98,8 @@ and builder safety tests. `tools/test_project.py` verifies embedded evaluation, 
 independent classpaths, stale-lock rejection, actual fixed-output hash failure,
 and restoration into an isolated store from a temporary local binary cache.
 `jix verify` validates metadata and optionally materialized artifact bytes offline; Nix verifies artifact bytes when fetching.
+Nix lock validation rejects duplicate classpath identities and applies the same
+locked-source repository URL policy as Rust verification, before constructing derivations.
 The example lock was generated from real upstream binaries, unlike the synthetic
 JAR placeholders used in resolver-only tests.
 

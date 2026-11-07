@@ -57,7 +57,7 @@
     cargo test -p jix --locked --test matrix matrix_maven_parity -- --ignored
   '';
 
-  scripts.integration.exec = "cargo test -p jix --locked --test lock_codec -- --ignored && python3 -B tools/test_explicit.py && python3 -B tools/test_generated_sources.py && python3 -B tools/test_matrix.py && python3 -B tools/test_resolution_context.py && python3 -B tools/test_nix.py && python3 -B tools/test_project.py && python3 -B tools/test_composition.py && python3 -B tools/test_templates.py";
+  scripts.integration.exec = "cargo test -p jix --locked --test lock_codec -- --ignored && python3 -B tools/test_explicit.py && python3 -B tools/test_generated_sources.py && python3 -B tools/test_matrix.py && python3 -B tools/test_resolution_context.py && python3 -B tools/test_nix.py && python3 -B tools/test_project.py && python3 -B tools/test_composition.py && python3 -B tools/test_templates.py && python3 -B tools/test_distribution.py";
 
   enterTest = ''
     cargo test --workspace --locked

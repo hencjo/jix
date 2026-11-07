@@ -493,6 +493,22 @@ Import-from-derivation is disabled; Linux syscall filtering prevents network
 sockets and external fetch helpers during offline evaluation. Explicit lock/JSON
 verification doesn't evaluate Nix at all.
 
+### Commands without the Nix backend
+
+`cargo build -p jix --no-default-features --locked` builds the same CLI without
+native Nix linkage, not an offline-only CLI. Explicit `resolve dependencies.json`
+and `lock dependencies.json` can fetch Maven inputs using `curl`; locking downloads
+selected JARs to pin their hashes. These JSON inputs are integration primitives,
+not a second dependency declaration language to maintain alongside `maven.nix`.
+
+`info LOCK` and `verify LOCK --dependencies FILE` need neither Nix nor repository
+access. Without `--dependencies`, explicit lock verification checks internal
+consistency, not freshness against project declarations. `export REALIZED_DIR`
+and `internal` construction commands also work without Nix, using supplied files
+and tools. Bare project `verify` still requires the Nix backend to evaluate
+declarations offline; project locking, building, classpath realization, running,
+and IDE realization require it too.
+
 Exports contain regular files in `repository/` using Maven repository paths,
 `jix.lock`, `artifacts.json`, and relative classpath configurations. Move the export
 freely; regenerate absolute classpaths at its destination:

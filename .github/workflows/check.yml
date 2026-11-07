@@ -18,7 +18,9 @@ jobs:
       - run: python3 -B tools/test_generated_sources.py
       - run: python3 -B tools/test_matrix.py
       - run: nix develop --command cargo test -p jix --locked --test lock_codec -- --ignored
+      - run: nix develop --command cargo test -p jix --no-default-features --locked --test independence
       - run: python3 -B tools/test_resolution_context.py
       - run: python3 -B tools/test_nix.py
       - run: python3 -B tools/test_project.py
       - run: python3 -B tools/test_composition.py
+      - run: python3 -B tools/test_distribution.py
