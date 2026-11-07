@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+### Breaking changes
+
+### Added
+
+### Changed
+
+### Fixed
+
+### Security
+
+### Documentation
+
+### Upgrade notes
+
+## [0.1.0] - 2026-11-07
+
 ### Added
 - Deterministic published Maven dependency resolution, gated against Maven 3.9.11 / Resolver 1.9.24, with explicit contexts and compact v5 locks.
 - Pure Nix dependency declarations, frozen classpaths, standard Nix caching, and optional Java/JPMS build helpers.
@@ -25,3 +41,4 @@
 ### Upgrade notes
 - Lock format v5 requires an explicit re-lock of older projects; see docs/lock-format.md.
 - Release packages require Nix; they are not standalone static executables.
+
